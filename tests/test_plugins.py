@@ -192,9 +192,7 @@ class TestLoadPluginsFromDir:
             '        name="p2", version="1.0", description="p2"\n'
             "    ))\n"
         )
-        (tmp_path / "_private.py").write_text(
-            "def register(manager): pass\n"
-        )
+        (tmp_path / "_private.py").write_text("def register(manager): pass\n")
 
         loaded = manager.load_plugins_from_dir(tmp_path)
         assert loaded == 2
@@ -206,9 +204,7 @@ class TestLoadPluginsFromDir:
         assert loaded == 0
 
     def test_nonexistent_directory(self, manager, tmp_path):
-        loaded = manager.load_plugins_from_dir(
-            tmp_path / "nope"
-        )
+        loaded = manager.load_plugins_from_dir(tmp_path / "nope")
         assert loaded == 0
 
 

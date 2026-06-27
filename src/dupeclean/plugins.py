@@ -20,6 +20,7 @@ from .models import DuplicateGroup, FileInfo, ScanStats
 @dataclass
 class PluginInfo:
     """Registered plugin information."""
+
     name: str
     version: str
     description: str
@@ -47,9 +48,7 @@ class PluginManager:
 
     def __init__(self) -> None:
         self._plugins: dict[str, PluginInfo] = {}
-        self._hooks: dict[str, list[Callable]] = {
-            h: [] for h in self.HOOK_NAMES
-        }
+        self._hooks: dict[str, list[Callable]] = {h: [] for h in self.HOOK_NAMES}
 
     def register(self, plugin: PluginInfo) -> None:
         """Register a plugin."""
@@ -116,9 +115,7 @@ class PluginManager:
     def plugin_count(self) -> int:
         return len(self._plugins)
 
-    def fire(
-        self, hook_name: str, **kwargs: Any
-    ) -> list[Any]:
+    def fire(self, hook_name: str, **kwargs: Any) -> list[Any]:
         """Fire a hook and collect results.
 
         Returns list of non-None return values from hooks.
@@ -139,14 +136,10 @@ class PluginManager:
     def fire_on_file_found(self, fi: FileInfo) -> list[Any]:
         return self.fire("on_file_found", file_info=fi)
 
-    def fire_on_scan_complete(
-        self, stats: ScanStats
-    ) -> list[Any]:
+    def fire_on_scan_complete(self, stats: ScanStats) -> list[Any]:
         return self.fire("on_scan_complete", stats=stats)
 
-    def fire_on_duplicates_found(
-        self, groups: list[DuplicateGroup]
-    ) -> list[Any]:
+    def fire_on_duplicates_found(self, groups: list[DuplicateGroup]) -> list[Any]:
         return self.fire("on_duplicates_found", groups=groups)
 
 
