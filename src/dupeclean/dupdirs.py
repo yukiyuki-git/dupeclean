@@ -15,6 +15,7 @@ from .models import DirInfo, FileInfo, format_size
 @dataclass
 class DirFingerprint:
     """Content-based fingerprint for a directory."""
+
     path: Path
     file_count: int
     total_size: int
@@ -28,11 +29,10 @@ class DirFingerprint:
 @dataclass
 class DuplicateDirGroup:
     """A group of directories with identical contents."""
+
     group_id: int
     fingerprint: DirFingerprint
-    directories: list[DirFingerprint] = field(
-        default_factory=list
-    )
+    directories: list[DirFingerprint] = field(default_factory=list)
 
     @property
     def count(self) -> int:
@@ -51,17 +51,12 @@ def fingerprint_directory(
 
     Uses only direct children (not recursive).
     """
-    direct_files = [
-        f for f in files if f.path.parent == dir_info.path
-    ]
+    direct_files = [f for f in files if f.path.parent == dir_info.path]
     if not direct_files:
         return None
 
     # Sort file hashes for deterministic comparison
-    hashes = sorted(
-        f.full_hash or f.quick_hash or str(f.size)
-        for f in direct_files
-    )
+    hashes = sorted(f.full_hash or f.quick_hash or str(f.size) for f in direct_files)
     content_hash = "|".join(hashes)
 
     return DirFingerprint(
@@ -93,9 +88,7 @@ def find_duplicate_directories(
             size_groups.setdefault(key, []).append(dir_info)
 
     # Only check groups with multiple directories
-    candidates = [
-        group for group in size_groups.values() if len(group) >= 2
-    ]
+    candidates = [group for group in size_groups.values() if len(group) >= 2]
 
     # Fingerprint candidates and group by content hash
     fingerprint_groups: dict[str, list[DirFingerprint]] = {}
@@ -103,9 +96,7 @@ def find_duplicate_directories(
         for dir_info in group:
             fp = fingerprint_directory(dir_info, files)
             if fp:
-                fingerprint_groups.setdefault(
-                    fp.content_hash, []
-                ).append(fp)
+                fingerprint_groups.setdefault(fp.content_hash, []).append(fp)
 
     # Build result groups
     results: list[DuplicateDirGroup] = []
@@ -134,8 +125,7 @@ def format_duplicate_dirs(
 
     total_wasted = sum(g.wasted_space for g in groups)
     lines = [
-        f"Duplicate directories: {len(groups)} groups, "
-        f"{format_size(total_wasted)} wasted",
+        f"Duplicate directories: {len(groups)} groups, {format_size(total_wasted)} wasted",
         "",
     ]
 
