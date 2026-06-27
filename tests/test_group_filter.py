@@ -70,11 +70,15 @@ class TestFilterByPattern:
     def test_basic(self):
         groups = [
             DuplicateGroup(
-                group_id=0, hash_value="a", file_size=100,
+                group_id=0,
+                hash_value="a",
+                file_size=100,
                 files=[_fi("/photo_001.jpg"), _fi("/photo_002.jpg")],
             ),
             DuplicateGroup(
-                group_id=1, hash_value="b", file_size=100,
+                group_id=1,
+                hash_value="b",
+                file_size=100,
                 files=[_fi("/doc.pdf"), _fi("/doc2.pdf")],
             ),
         ]
