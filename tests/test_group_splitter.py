@@ -19,7 +19,9 @@ def _fi(path: str, size: int = 100) -> FileInfo:
 
 def _group(gid: int, size: int, count: int) -> DuplicateGroup:
     return DuplicateGroup(
-        group_id=gid, hash_value=f"h{gid}", file_size=size,
+        group_id=gid,
+        hash_value=f"h{gid}",
+        file_size=size,
         files=[_fi(f"/f{i}", size) for i in range(count)],
     )
 
@@ -40,7 +42,9 @@ class TestSplitByMaxCount:
     def test_single_file_not_split(self):
         groups = [
             DuplicateGroup(
-                group_id=0, hash_value="abc", file_size=100,
+                group_id=0,
+                hash_value="abc",
+                file_size=100,
                 files=[_fi("/a")],
             )
         ]
@@ -65,9 +69,7 @@ class TestSplitResult:
 
 class TestFormatSplitResult:
     def test_basic(self):
-        result = SplitResult(
-            original_groups=5, split_groups=8, splits_performed=3
-        )
+        result = SplitResult(original_groups=5, split_groups=8, splits_performed=3)
         text = format_split_result(result)
         assert "5" in text
         assert "8" in text

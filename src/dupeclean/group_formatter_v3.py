@@ -18,10 +18,8 @@ def format_group_rich(group: DuplicateGroup, width: int = 60) -> str:
     bar = "█" * filled + "░" * (bar_width - filled)
 
     lines = [
-        f"  Group #{group.group_id} "
-        f"[{bar}] {waste_pct:.0f}% waste",
-        f"    {group.count} files x {group.size_display} "
-        f"= {group.wasted_display} wasted",
+        f"  Group #{group.group_id} [{bar}] {waste_pct:.0f}% waste",
+        f"    {group.count} files x {group.size_display} = {group.wasted_display} wasted",
     ]
 
     for i, fi in enumerate(group.files):
@@ -37,8 +35,7 @@ def format_groups_compact(groups: list[DuplicateGroup]) -> str:
         return "No duplicate groups."
 
     lines = [
-        f"{'#':>4} {'Files':>6} {'Size':>10} "
-        f"{'Wasted':>10} {'Impact':>8}",
+        f"{'#':>4} {'Files':>6} {'Size':>10} {'Wasted':>10} {'Impact':>8}",
         " " + "-" * 42,
     ]
 
@@ -50,9 +47,7 @@ def format_groups_compact(groups: list[DuplicateGroup]) -> str:
         else:
             impact = "LOW"
         lines.append(
-            f"{g.group_id:>4} {g.count:>6} "
-            f"{g.size_display:>10} {g.wasted_display:>10} "
-            f"{impact:>8}"
+            f"{g.group_id:>4} {g.count:>6} {g.size_display:>10} {g.wasted_display:>10} {impact:>8}"
         )
 
     if len(groups) > 30:

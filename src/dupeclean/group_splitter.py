@@ -13,6 +13,7 @@ from .models import DuplicateGroup
 @dataclass
 class SplitResult:
     """Result of splitting groups."""
+
     original_groups: int = 0
     split_groups: int = 0
     splits_performed: int = 0
@@ -43,10 +44,7 @@ def split_by_max_count(
             new_groups.append(group)
         else:
             # Split into chunks
-            chunks = [
-                group.files[i : i + max_count]
-                for i in range(0, len(group.files), max_count)
-            ]
+            chunks = [group.files[i : i + max_count] for i in range(0, len(group.files), max_count)]
             for chunk in chunks:
                 if len(chunk) >= 2:
                     new_groups.append(
