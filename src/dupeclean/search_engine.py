@@ -15,6 +15,7 @@ from .models import FileInfo, format_size
 @dataclass
 class SearchQuery:
     """A search query."""
+
     name_pattern: str | None = None
     extension: str | None = None
     min_size: int | None = None
@@ -28,6 +29,7 @@ class SearchQuery:
 @dataclass
 class SearchResult:
     """Search results."""
+
     query: SearchQuery
     matches: list[FileInfo] = field(default_factory=list)
 
@@ -93,15 +95,11 @@ def format_search_result(result: SearchResult) -> str:
         return "No files found matching query."
 
     lines = [
-        f"Search: {result.count:,} matches, "
-        f"{format_size(result.total_size)} total",
+        f"Search: {result.count:,} matches, {format_size(result.total_size)} total",
         "",
     ]
     for fi in result.matches[:20]:
-        lines.append(
-            f"  {fi.size_display:>10s}  {fi.path.name}  "
-            f"[dim]{fi.path.parent}[/]"
-        )
+        lines.append(f"  {fi.size_display:>10s}  {fi.path.name}  [dim]{fi.path.parent}[/]")
     if result.count > 20:
         lines.append(f"\n  ... and {result.count - 20} more")
     return "\n".join(lines)
