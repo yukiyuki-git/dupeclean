@@ -14,6 +14,7 @@ from .models import DuplicateGroup, format_size
 @dataclass
 class DuplicateStats:
     """Statistical analysis of duplicates."""
+
     total_groups: int = 0
     total_files: int = 0
     total_wasted: int = 0

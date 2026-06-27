@@ -65,10 +65,15 @@ class TestFindResult:
         result = FindResult()
         # Add a group to give it wasted space
         from dupeclean.models import DuplicateGroup
-        result.groups.append(DuplicateGroup(
-            group_id=0, hash_value="abc", file_size=1024,
-            files=[_fi("/a", 1024), _fi("/b", 1024)],
-        ))
+
+        result.groups.append(
+            DuplicateGroup(
+                group_id=0,
+                hash_value="abc",
+                file_size=1024,
+                files=[_fi("/a", 1024), _fi("/b", 1024)],
+            )
+        )
         assert "B" in result.wasted_display
 
 

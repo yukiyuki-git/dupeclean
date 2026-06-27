@@ -20,11 +20,15 @@ class TestComputeDuplicateStats:
     def test_basic(self):
         groups = [
             DuplicateGroup(
-                group_id=0, hash_value="abc", file_size=1000,
+                group_id=0,
+                hash_value="abc",
+                file_size=1000,
                 files=[_fi("/a"), _fi("/b"), _fi("/c")],
             ),
             DuplicateGroup(
-                group_id=1, hash_value="def", file_size=2000,
+                group_id=1,
+                hash_value="def",
+                file_size=2000,
                 files=[_fi("/d"), _fi("/e")],
             ),
         ]
@@ -44,9 +48,7 @@ class TestDuplicateStats:
         assert "B" in stats.wasted_display
 
     def test_dedup_ratio(self):
-        stats = DuplicateStats(
-            total_files=10, total_wasted=500, avg_file_size=100
-        )
+        stats = DuplicateStats(total_files=10, total_wasted=500, avg_file_size=100)
         assert stats.dedup_ratio > 0
 
 
@@ -58,7 +60,9 @@ class TestFormatDuplicateStats:
     def test_with_stats(self):
         groups = [
             DuplicateGroup(
-                group_id=0, hash_value="abc", file_size=100,
+                group_id=0,
+                hash_value="abc",
+                file_size=100,
                 files=[_fi("/a"), _fi("/b")],
             )
         ]
