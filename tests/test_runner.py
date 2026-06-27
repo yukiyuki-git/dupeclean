@@ -21,7 +21,9 @@ class TestRunCleanup:
     def test_dry_run(self):
         groups = [
             DuplicateGroup(
-                group_id=0, hash_value="abc", file_size=100,
+                group_id=0,
+                hash_value="abc",
+                file_size=100,
                 files=[_fi("/a", 100), _fi("/b", 100), _fi("/c", 100)],
             )
         ]
@@ -37,7 +39,9 @@ class TestRunCleanup:
     def test_single_file_group_skipped(self):
         groups = [
             DuplicateGroup(
-                group_id=0, hash_value="abc", file_size=100,
+                group_id=0,
+                hash_value="abc",
+                file_size=100,
                 files=[_fi("/a")],
             )
         ]

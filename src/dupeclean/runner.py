@@ -14,6 +14,7 @@ from .models import DuplicateGroup, format_size
 @dataclass
 class RunnerConfig:
     """Configuration for cleanup runner."""
+
     strategy: str = "shortest"
     dry_run: bool = True
     verify: bool = True
@@ -24,6 +25,7 @@ class RunnerConfig:
 @dataclass
 class RunnerResult:
     """Result of running cleanup."""
+
     success: bool = True
     files_processed: int = 0
     files_deleted: int = 0
