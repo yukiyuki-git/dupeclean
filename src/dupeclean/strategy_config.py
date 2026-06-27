@@ -13,6 +13,7 @@ from .models import FileInfo, format_size
 @dataclass
 class CleanupStrategyConfig:
     """Configuration for a cleanup strategy."""
+
     name: str
     description: str
     keep_rule: str  # "shortest", "newest", "oldest", "first"

@@ -25,24 +25,21 @@ class TestCleanupStrategyConfig:
 
     def test_min_file_size(self):
         strategy = CleanupStrategyConfig(
-            name="test", description="test", keep_rule="shortest",
-            min_file_size=1000
+            name="test", description="test", keep_rule="shortest", min_file_size=1000
         )
         assert strategy.matches_file(_fi("/a", 500)) is False
         assert strategy.matches_file(_fi("/a", 1500)) is True
 
     def test_max_file_size(self):
         strategy = CleanupStrategyConfig(
-            name="test", description="test", keep_rule="shortest",
-            max_file_size=1000
+            name="test", description="test", keep_rule="shortest", max_file_size=1000
         )
         assert strategy.matches_file(_fi("/a", 500)) is True
         assert strategy.matches_file(_fi("/a", 1500)) is False
 
     def test_extensions_filter(self):
         strategy = CleanupStrategyConfig(
-            name="test", description="test", keep_rule="shortest",
-            extensions=[".jpg", ".png"]
+            name="test", description="test", keep_rule="shortest", extensions=[".jpg", ".png"]
         )
         assert strategy.matches_file(_fi("/a.jpg", 100)) is True
         assert strategy.matches_file(_fi("/a.txt", 100)) is False
