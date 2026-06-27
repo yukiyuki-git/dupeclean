@@ -13,6 +13,7 @@ from .models import DuplicateGroup, format_size
 @dataclass
 class GroupReportSection:
     """A section of the group report."""
+
     title: str
     content: str
     priority: int = 0
@@ -21,6 +22,7 @@ class GroupReportSection:
 @dataclass
 class GroupReport:
     """A comprehensive group report."""
+
     sections: list[GroupReportSection] = field(default_factory=list)
     generated_at: float = 0.0
 
@@ -61,8 +63,7 @@ def generate_group_report(groups: list[DuplicateGroup]) -> GroupReport:
         lines = []
         for g in sorted_groups[:10]:
             lines.append(
-                f"  Group #{g.group_id}: {g.count} x "
-                f"{g.size_display} = {g.wasted_display} wasted"
+                f"  Group #{g.group_id}: {g.count} x {g.size_display} = {g.wasted_display} wasted"
             )
             for fi in g.files[:3]:
                 lines.append(f"    {fi.path}")
