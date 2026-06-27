@@ -109,11 +109,7 @@ class TestCheckQuota:
 class TestUpdateQuotaFromDirs:
     def test_basic(self):
         q = Quota(path=Path("/test"), limit_bytes=1000)
-        dirs = {
-            Path("/test"): DirInfo(
-                path=Path("/test"), total_size=500, file_count=10
-            )
-        }
+        dirs = {Path("/test"): DirInfo(path=Path("/test"), total_size=500, file_count=10)}
         updated = update_quota_from_dirs(q, dirs)
         assert updated.current_usage == 500
 

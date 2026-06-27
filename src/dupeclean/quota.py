@@ -14,6 +14,7 @@ from .models import DirInfo, format_size
 @dataclass
 class Quota:
     """A disk usage quota."""
+
     path: Path
     limit_bytes: int
     warning_pct: float = 80.0  # Warn at this percentage
@@ -53,6 +54,7 @@ class Quota:
 @dataclass
 class QuotaStatus:
     """Status of a quota check."""
+
     quota: Quota
     status: str  # "ok", "warning", "exceeded"
     message: str
@@ -78,9 +80,7 @@ def check_quota(quota: Quota) -> QuotaStatus:
             quota=quota,
             status="exceeded",
             message=(
-                f"EXCEEDED: {quota.usage_display} / "
-                f"{quota.limit_display} "
-                f"({quota.usage_pct:.1f}%)"
+                f"EXCEEDED: {quota.usage_display} / {quota.limit_display} ({quota.usage_pct:.1f}%)"
             ),
         )
     if quota.is_warning:
@@ -88,25 +88,17 @@ def check_quota(quota: Quota) -> QuotaStatus:
             quota=quota,
             status="warning",
             message=(
-                f"WARNING: {quota.usage_display} / "
-                f"{quota.limit_display} "
-                f"({quota.usage_pct:.1f}%)"
+                f"WARNING: {quota.usage_display} / {quota.limit_display} ({quota.usage_pct:.1f}%)"
             ),
         )
     return QuotaStatus(
         quota=quota,
         status="ok",
-        message=(
-            f"OK: {quota.usage_display} / "
-            f"{quota.limit_display} "
-            f"({quota.usage_pct:.1f}%)"
-        ),
+        message=(f"OK: {quota.usage_display} / {quota.limit_display} ({quota.usage_pct:.1f}%)"),
     )
 
 
-def update_quota_from_dirs(
-    quota: Quota, dirs: dict[Path, DirInfo]
-) -> Quota:
+def update_quota_from_dirs(quota: Quota, dirs: dict[Path, DirInfo]) -> Quota:
     """Update quota with current usage from scan results."""
     dir_info = dirs.get(quota.path)
     if dir_info:
@@ -145,16 +137,8 @@ def format_multi_quota(
     lines = ["Quota Status:", ""]
     for status in statuses:
         q = status.quota
-        level = (
-            "exceeded" if q.is_exceeded
-            else "warning" if q.is_warning
-            else "ok"
-        )
+        level = "exceeded" if q.is_exceeded else "warning" if q.is_warning else "ok"
         icon = {"ok": "[+]", "warning": "[!]", "exceeded": "[X]"}.get(level, "[?]")
-        lines.append(
-            f"  {icon} {q.path}: "
-            f"{q.usage_display}/{q.limit_display} "
-            f"({q.usage_pct:.1f}%)"
-        )
+        lines.append(f"  {icon} {q.path}: {q.usage_display}/{q.limit_display} ({q.usage_pct:.1f}%)")
 
     return "\n".join(lines)
