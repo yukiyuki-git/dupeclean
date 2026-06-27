@@ -18,6 +18,7 @@ from pathlib import Path
 @dataclass
 class HealthIssue:
     """A detected health issue."""
+
     severity: str  # "info", "warning", "error"
     category: str
     message: str
@@ -28,6 +29,7 @@ class HealthIssue:
 @dataclass
 class HealthReport:
     """Complete disk health report."""
+
     path: Path
     issues: list[HealthIssue] = field(default_factory=list)
     total_files: int = 0
@@ -39,15 +41,11 @@ class HealthReport:
 
     @property
     def error_count(self) -> int:
-        return sum(
-            1 for i in self.issues if i.severity == "error"
-        )
+        return sum(1 for i in self.issues if i.severity == "error")
 
     @property
     def warning_count(self) -> int:
-        return sum(
-            1 for i in self.issues if i.severity == "warning"
-        )
+        return sum(1 for i in self.issues if i.severity == "warning")
 
     @property
     def is_healthy(self) -> bool:
@@ -161,9 +159,7 @@ def _check_directory(
                     )
             elif entry.is_dir(follow_symlinks=False):
                 report.total_dirs += 1
-                _check_directory(
-                    path, depth + 1, max_depth, report
-                )
+                _check_directory(path, depth + 1, max_depth, report)
             elif entry.is_file(follow_symlinks=False):
                 report.total_files += 1
         except PermissionError:
@@ -175,14 +171,18 @@ def _check_directory(
 def _is_temp_file(name: str) -> bool:
     """Check if a filename looks like a temp file."""
     temp_patterns = [
-        ".tmp", ".temp", ".bak", ".swp", ".swo",
-        "~", ".orig", ".old", ".cache",
+        ".tmp",
+        ".temp",
+        ".bak",
+        ".swp",
+        ".swo",
+        "~",
+        ".orig",
+        ".old",
+        ".cache",
     ]
     name_lower = name.lower()
-    return any(
-        name_lower.endswith(p) or name_lower.startswith(p)
-        for p in temp_patterns
-    )
+    return any(name_lower.endswith(p) or name_lower.startswith(p) for p in temp_patterns)
 
 
 def format_health_report(report: HealthReport) -> str:
@@ -197,27 +197,16 @@ def format_health_report(report: HealthReport) -> str:
     if report.is_healthy:
         lines.append("  ✅ No critical issues found!")
     else:
-        lines.append(
-            f"  ❌ {report.error_count} error(s), "
-            f"{report.warning_count} warning(s)"
-        )
+        lines.append(f"  ❌ {report.error_count} error(s), {report.warning_count} warning(s)")
 
     if report.broken_symlinks:
-        lines.append(
-            f"  ⚠️  {report.broken_symlinks} broken symlinks"
-        )
+        lines.append(f"  ⚠️  {report.broken_symlinks} broken symlinks")
     if report.permission_errors:
-        lines.append(
-            f"  🔒 {report.permission_errors} permission errors"
-        )
+        lines.append(f"  🔒 {report.permission_errors} permission errors")
     if report.temp_files:
-        lines.append(
-            f"  🗑️  {report.temp_files} temp files"
-        )
+        lines.append(f"  🗑️  {report.temp_files} temp files")
     if report.hidden_files:
-        lines.append(
-            f"  👁️  {report.hidden_files} hidden files"
-        )
+        lines.append(f"  👁️  {report.hidden_files} hidden files")
 
     if report.issues:
         lines.append("\n  Issues:")

@@ -132,9 +132,7 @@ class TestFormatHealthReport:
         report = HealthReport(
             path=tmp_path,
             issues=[
-                HealthIssue(
-                    "warning", "symlinks", "Broken link"
-                ),
+                HealthIssue("warning", "symlinks", "Broken link"),
             ],
             broken_symlinks=1,
         )
@@ -142,8 +140,6 @@ class TestFormatHealthReport:
         assert "broken symlinks" in text
 
     def test_contains_stats(self, tmp_path):
-        report = HealthReport(
-            path=tmp_path, total_files=100, total_dirs=10
-        )
+        report = HealthReport(path=tmp_path, total_files=100, total_dirs=10)
         text = format_health_report(report)
         assert "100" in text

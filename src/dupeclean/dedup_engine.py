@@ -20,6 +20,7 @@ from .utils import create_hardlink, is_same_file
 @dataclass
 class DedupAction:
     """A single dedup action."""
+
     source: Path  # The canonical file to keep
     target: Path  # The duplicate to replace
     method: str  # "hardlink" or "symlink"
@@ -29,6 +30,7 @@ class DedupAction:
 @dataclass
 class DedupPlan:
     """A complete deduplication plan."""
+
     actions: list[DedupAction] = field(default_factory=list)
     total_space_saved: int = 0
 
@@ -44,6 +46,7 @@ class DedupPlan:
 @dataclass
 class DedupResult:
     """Result of executing a dedup plan."""
+
     actions_completed: int = 0
     actions_failed: int = 0
     space_saved: int = 0
@@ -110,13 +113,9 @@ def execute_dedup(
 
         try:
             if action.method == "hardlink":
-                success, error = _do_hardlink(
-                    action.source, action.target, verify
-                )
+                success, error = _do_hardlink(action.source, action.target, verify)
             else:
-                success, error = _do_symlink(
-                    action.source, action.target
-                )
+                success, error = _do_symlink(action.source, action.target)
 
             if success:
                 result.actions_completed += 1
@@ -132,9 +131,7 @@ def execute_dedup(
     return result
 
 
-def _do_hardlink(
-    source: Path, target: Path, verify: bool
-) -> tuple[bool, str]:
+def _do_hardlink(source: Path, target: Path, verify: bool) -> tuple[bool, str]:
     """Create a hardlink from target to source."""
     # Backup target first
     backup = target.with_suffix(target.suffix + ".dedup_backup")
@@ -160,9 +157,7 @@ def _do_hardlink(
     return success, error
 
 
-def _do_symlink(
-    source: Path, target: Path
-) -> tuple[bool, str]:
+def _do_symlink(source: Path, target: Path) -> tuple[bool, str]:
     """Create a symlink from target to source."""
     try:
         target.unlink()
@@ -175,20 +170,14 @@ def _do_symlink(
 def format_dedup_plan(plan: DedupPlan) -> str:
     """Format a dedup plan as text."""
     lines = [
-        f"Dedup Plan: {plan.count} actions, "
-        f"{plan.savings_display} savings",
+        f"Dedup Plan: {plan.count} actions, {plan.savings_display} savings",
         "",
     ]
 
     for action in plan.actions[:20]:
-        lines.append(
-            f"  {action.method}: {action.target.name} -> "
-            f"{action.source.name}"
-        )
+        lines.append(f"  {action.method}: {action.target.name} -> {action.source.name}")
 
     if plan.count > 20:
-        lines.append(
-            f"\n  ... and {plan.count - 20} more actions"
-        )
+        lines.append(f"\n  ... and {plan.count - 20} more actions")
 
     return "\n".join(lines)
