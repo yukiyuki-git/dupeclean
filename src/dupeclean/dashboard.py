@@ -13,6 +13,7 @@ from .models import DuplicateGroup, FileInfo, format_size
 @dataclass
 class DashboardWidget:
     """A dashboard widget."""
+
     widget_type: str  # "metric", "chart", "table", "gauge"
     title: str
     data: dict = field(default_factory=dict)
@@ -21,6 +22,7 @@ class DashboardWidget:
 @dataclass
 class Dashboard:
     """A dedup statistics dashboard."""
+
     title: str
     widgets: list[DashboardWidget] = field(default_factory=list)
 
