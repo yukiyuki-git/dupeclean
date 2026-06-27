@@ -18,6 +18,7 @@ from .utils import safe_stat
 @dataclass
 class FileEvent:
     """A detected file system event."""
+
     event_type: str  # "created", "deleted", "modified", "renamed"
     path: Path
     old_path: Path | None = None  # For renames
@@ -37,9 +38,8 @@ class FileEvent:
 @dataclass
 class WatchState:
     """Snapshot of directory state for change detection."""
-    files: dict[str, tuple[int, float]] = field(
-        default_factory=dict
-    )  # path_str -> (size, mtime)
+
+    files: dict[str, tuple[int, float]] = field(default_factory=dict)  # path_str -> (size, mtime)
 
 
 class DirectoryWatcher:
@@ -57,9 +57,7 @@ class DirectoryWatcher:
     ) -> None:
         self.path = path
         self.interval = interval
-        self.ignore_patterns = ignore_patterns or [
-            ".git", "node_modules", "__pycache__", ".venv"
-        ]
+        self.ignore_patterns = ignore_patterns or [".git", "node_modules", "__pycache__", ".venv"]
         self._state = WatchState()
         self._running = False
         self._on_event: Callable[[FileEvent], None] | None = None
@@ -78,10 +76,7 @@ class DirectoryWatcher:
         try:
             for root, dirs, files in os.walk(self.path):
                 # Skip ignored directories
-                dirs[:] = [
-                    d for d in dirs
-                    if d not in self.ignore_patterns
-                ]
+                dirs[:] = [d for d in dirs if d not in self.ignore_patterns]
                 for name in files:
                     filepath = Path(root) / name
                     st = safe_stat(filepath)
@@ -92,9 +87,7 @@ class DirectoryWatcher:
             pass
         return state
 
-    def _compare(
-        self, old: WatchState, new: WatchState
-    ) -> list[FileEvent]:
+    def _compare(self, old: WatchState, new: WatchState) -> list[FileEvent]:
         """Compare two snapshots and generate events."""
         events: list[FileEvent] = []
         old_keys = set(old.files.keys())
@@ -102,26 +95,18 @@ class DirectoryWatcher:
 
         # New files
         for key in new_keys - old_keys:
-            events.append(
-                FileEvent(event_type="created", path=Path(key))
-            )
+            events.append(FileEvent(event_type="created", path=Path(key)))
 
         # Deleted files
         for key in old_keys - new_keys:
-            events.append(
-                FileEvent(event_type="deleted", path=Path(key))
-            )
+            events.append(FileEvent(event_type="deleted", path=Path(key)))
 
         # Modified files
         for key in old_keys & new_keys:
             old_size, old_mtime = old.files[key]
             new_size, new_mtime = new.files[key]
             if old_mtime != new_mtime or old_size != new_size:
-                events.append(
-                    FileEvent(
-                        event_type="modified", path=Path(key)
-                    )
-                )
+                events.append(FileEvent(event_type="modified", path=Path(key)))
 
         events.sort(key=lambda e: e.timestamp)
         return events
@@ -139,10 +124,7 @@ class DirectoryWatcher:
         while self._running:
             time.sleep(self.interval)
 
-            if (
-                duration is not None
-                and time.monotonic() - start >= duration
-            ):
+            if duration is not None and time.monotonic() - start >= duration:
                 break
 
             new_state = self._scan()

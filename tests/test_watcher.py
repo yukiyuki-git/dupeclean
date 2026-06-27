@@ -14,9 +14,7 @@ from dupeclean.watcher import (
 
 class TestFileEvent:
     def test_display_created(self):
-        event = FileEvent(
-            event_type="created", path=Path("/test/file.txt")
-        )
+        event = FileEvent(event_type="created", path=Path("/test/file.txt"))
         assert "CREATED" in event.display
 
     def test_display_renamed(self):
@@ -88,9 +86,7 @@ class TestDirectoryWatcher:
         (git_dir / "config").write_text("git config")
         (tmp_path / "real.txt").write_text("real")
 
-        watcher = DirectoryWatcher(
-            tmp_path, ignore_patterns=[".git"]
-        )
+        watcher = DirectoryWatcher(tmp_path, ignore_patterns=[".git"])
         state = watcher._scan()
 
         assert len(state.files) == 1
