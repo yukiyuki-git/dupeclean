@@ -40,15 +40,9 @@ def sample_dirs():
                 ),
             ],
         ),
-        Path("/root/a"): DirInfo(
-            path=Path("/root/a"), total_size=5000, file_count=5
-        ),
-        Path("/root/b"): DirInfo(
-            path=Path("/root/b"), total_size=3000, file_count=3
-        ),
-        Path("/root/c"): DirInfo(
-            path=Path("/root/c"), total_size=2000, file_count=2
-        ),
+        Path("/root/a"): DirInfo(path=Path("/root/a"), total_size=5000, file_count=5),
+        Path("/root/b"): DirInfo(path=Path("/root/b"), total_size=3000, file_count=3),
+        Path("/root/c"): DirInfo(path=Path("/root/c"), total_size=2000, file_count=2),
     }
     return dirs
 
@@ -67,9 +61,7 @@ class TestBuildTreemap:
         assert sizes == sorted(sizes, reverse=True)
 
     def test_max_children(self, sample_dirs):
-        node = build_treemap(
-            sample_dirs, Path("/root"), max_children=2
-        )
+        node = build_treemap(sample_dirs, Path("/root"), max_children=2)
         # 2 real children + 1 "(other)" node
         assert len(node.children) == 3
 
@@ -78,9 +70,7 @@ class TestBuildTreemap:
         assert node.size == 0
 
     def test_max_depth(self, sample_dirs):
-        node = build_treemap(
-            sample_dirs, Path("/root"), max_depth=1
-        )
+        node = build_treemap(sample_dirs, Path("/root"), max_depth=1)
         for child in node.children:
             assert child.children is None or len(child.children) == 0
 

@@ -65,6 +65,12 @@ examples:
         metavar="PORT",
         help="API server port (default: 8080)",
     )
+    mode.add_argument("--health", action="store_true", help="Disk health check")
+    mode.add_argument("--forecast", action="store_true", help="Disk space forecast")
+    mode.add_argument("--entropy", action="store_true", help="File entropy analysis")
+    mode.add_argument("--treemap", action="store_true", help="Show disk usage treemap")
+    mode.add_argument("--fuzzy", action="store_true", help="Find similar filenames")
+    mode.add_argument("--search", metavar="PATTERN", help="Search files by name pattern")
 
     options = parser.add_argument_group("options")
     options.add_argument("--output", "-o", type=Path, metavar="FILE", help="Output file for report")
@@ -104,6 +110,18 @@ def main(argv: list[str] | None = None) -> int:
         return _run_api(target, args.api_port, config)
     if args.quick:
         return _run_quick(target, config)
+    if args.health:
+        return _run_health(target)
+    if args.forecast:
+        return _run_forecast(target)
+    if args.entropy:
+        return _run_entropy(target, config)
+    if args.treemap:
+        return _run_treemap(target, config)
+    if args.fuzzy:
+        return _run_fuzzy(target, config)
+    if args.search:
+        return _run_search(target, args.search, config)
     if args.cli or args.top or args.duplicates:
         return _run_cli(target, args, config)
     return _run_tui(target, config)
@@ -215,6 +233,83 @@ def _run_api(target: Path, port: int, config: Config) -> int:
         server.start(background=False)
     except KeyboardInterrupt:
         print("\nServer stopped.")
+    return 0
+
+
+def _run_health(target: Path) -> int:
+    from .health import check_disk_health, format_health_report
+
+    report = check_disk_health(target)
+    print(format_health_report(report))
+    return 0
+
+
+def _run_forecast(target: Path) -> int:
+    from .forecast import forecast_disk_space, format_forecast
+
+    forecast = forecast_disk_space(target)
+    print(format_forecast(forecast))
+    return 0
+
+
+def _run_entropy(target: Path, config: Config) -> int:
+    from .analyzer import Analyzer
+    from .entropy import find_high_entropy_files
+
+    analyzer = Analyzer(config)
+    result = analyzer.analyze(target, find_dupes=False)
+    high_ent = find_high_entropy_files(result.files)
+
+    if not high_ent:
+        print("No high-entropy files found.")
+        return 0
+
+    print(f"\nHigh entropy files ({len(high_ent)}):\n")
+    for ent in high_ent[:30]:
+        print(f"  {ent.entropy:.2f}  {ent.size_display:>10s}  [{ent.category}]  {ent.path.name}")
+    return 0
+
+
+def _run_treemap(target: Path, config: Config) -> int:
+    from .analyzer import Analyzer
+    from .treemap import build_treemap, format_treemap
+
+    analyzer = Analyzer(config)
+    result = analyzer.analyze(target, find_dupes=False)
+    node = build_treemap(result.dirs, target)
+    print(format_treemap(node))
+    return 0
+
+
+def _run_fuzzy(target: Path, config: Config) -> int:
+    from .analyzer import Analyzer
+    from .fuzzy import find_similar_names
+
+    analyzer = Analyzer(config)
+    result = analyzer.analyze(target, find_dupes=False)
+    groups = find_similar_names(result.files)
+
+    if not groups:
+        print("No similar filenames found.")
+        return 0
+
+    print(f"\nSimilar filename groups ({len(groups)}):\n")
+    for g in groups[:20]:
+        print(f"  Group #{g.group_id}: {g.count} files (similarity: {g.similarity:.0%})")
+        for fi in g.files:
+            print(f"    {fi.path.name}")
+    return 0
+
+
+def _run_search(target: Path, pattern: str, config: Config) -> int:
+    from .analyzer import Analyzer
+    from .search import SearchQuery, format_search_result, search_files
+
+    analyzer = Analyzer(config)
+    result = analyzer.analyze(target, find_dupes=False)
+    query = SearchQuery(name_pattern=pattern)
+    search_result = search_files(result.files, query)
+    print(format_search_result(search_result))
     return 0
 
 

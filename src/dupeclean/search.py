@@ -16,6 +16,7 @@ from .models import FileInfo, format_size
 @dataclass
 class SearchQuery:
     """A file search query."""
+
     name_pattern: str | None = None  # glob pattern
     extension: str | None = None  # without dot
     min_size: int | None = None
@@ -27,6 +28,7 @@ class SearchQuery:
 @dataclass
 class SearchResult:
     """Search results."""
+
     query: SearchQuery
     matches: list[FileInfo] = field(default_factory=list)
 
@@ -89,16 +91,12 @@ def _matches_query(fi: FileInfo, query: SearchQuery) -> bool:
     return not (query.max_size is not None and fi.size > query.max_size)
 
 
-def search_by_name(
-    files: list[FileInfo], pattern: str
-) -> SearchResult:
+def search_by_name(files: list[FileInfo], pattern: str) -> SearchResult:
     """Search files by name pattern."""
     return search_files(files, SearchQuery(name_pattern=pattern))
 
 
-def search_by_extension(
-    files: list[FileInfo], ext: str
-) -> SearchResult:
+def search_by_extension(files: list[FileInfo], ext: str) -> SearchResult:
     """Search files by extension."""
     return search_files(files, SearchQuery(extension=ext))
 
@@ -109,9 +107,7 @@ def search_by_size(
     max_size: int | None = None,
 ) -> SearchResult:
     """Search files by size range."""
-    return search_files(
-        files, SearchQuery(min_size=min_size, max_size=max_size)
-    )
+    return search_files(files, SearchQuery(min_size=min_size, max_size=max_size))
 
 
 def format_search_result(result: SearchResult) -> str:
@@ -120,20 +116,14 @@ def format_search_result(result: SearchResult) -> str:
         return "No files found matching query."
 
     lines = [
-        f"Search results: {result.count:,} files, "
-        f"{format_size(result.total_size)} total",
+        f"Search results: {result.count:,} files, {format_size(result.total_size)} total",
         "",
     ]
 
     for fi in result.matches[:50]:
-        lines.append(
-            f"  {fi.size_display:>10s}  {fi.path.name}  "
-            f"[dim]{fi.path.parent}[/]"
-        )
+        lines.append(f"  {fi.size_display:>10s}  {fi.path.name}  [dim]{fi.path.parent}[/]")
 
     if result.count > 50:
-        lines.append(
-            f"\n  ... and {result.count - 50} more files"
-        )
+        lines.append(f"\n  ... and {result.count - 50} more files")
 
     return "\n".join(lines)

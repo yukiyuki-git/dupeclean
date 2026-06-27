@@ -15,6 +15,7 @@ from .models import DirInfo, format_size
 @dataclass
 class TreemapNode:
     """A node in the treemap."""
+
     name: str
     path: Path
     size: int
@@ -79,10 +80,7 @@ def _build_children(
     children: list[TreemapNode] = []
     total = parent.total_size if parent.total_size > 0 else 1
 
-    sorted_children = sorted(
-        parent.children,
-        key=lambda c: c.total_size,
-        reverse=True )
+    sorted_children = sorted(parent.children, key=lambda c: c.total_size, reverse=True)
 
     for child in sorted_children[:max_children]:
         pct = (child.total_size / total * 100) if total else 0
@@ -104,9 +102,7 @@ def _build_children(
 
     # Add "(other)" if there are more children
     if len(sorted_children) > max_children:
-        other_size = sum(
-            c.total_size for c in sorted_children[max_children:]
-        )
+        other_size = sum(c.total_size for c in sorted_children[max_children:])
         other_pct = (other_size / total * 100) if total else 0
         children.append(
             TreemapNode(
@@ -163,10 +159,7 @@ def _format_node(
             f"{node.size_display:>10s} ({node.percentage:5.1f}%)"
         )
     else:
-        lines.append(
-            f"{prefix}{icon} {node.name}: "
-            f"{node.size_display} ({node.percentage:.1f}%)"
-        )
+        lines.append(f"{prefix}{icon} {node.name}: {node.size_display} ({node.percentage:.1f}%)")
 
     if node.children:
         for child in node.children:
@@ -182,7 +175,5 @@ def treemap_to_dict(node: TreemapNode) -> dict:
         "percentage": round(node.percentage, 2),
     }
     if node.children:
-        result["children"] = [
-            treemap_to_dict(c) for c in node.children
-        ]
+        result["children"] = [treemap_to_dict(c) for c in node.children]
     return result
