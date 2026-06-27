@@ -13,6 +13,7 @@ from .models import FileInfo, format_size
 @dataclass
 class Category:
     """A file category."""
+
     name: str
     description: str
     files: list[FileInfo] = field(default_factory=list)
@@ -104,18 +105,14 @@ def format_categories(categories: dict[str, Category]) -> str:
     total_size = sum(c.total_size for c in categories.values())
 
     lines = [
-        f"File Categories: {len(categories)} types, "
-        f"{total:,} files, {format_size(total_size)}",
+        f"File Categories: {len(categories)} types, {total:,} files, {format_size(total_size)}",
         "",
     ]
 
-    for _name, cat in sorted(
-        categories.items(), key=lambda x: x[1].total_size, reverse=True
-    ):
+    for _name, cat in sorted(categories.items(), key=lambda x: x[1].total_size, reverse=True):
         pct = (cat.total_size / total_size * 100) if total_size > 0 else 0
         lines.append(
-            f"  {cat.name:<15s} {cat.count:>6,} files  "
-            f"{cat.size_display:>10s} ({pct:5.1f}%)"
+            f"  {cat.name:<15s} {cat.count:>6,} files  {cat.size_display:>10s} ({pct:5.1f}%)"
         )
 
     return "\n".join(lines)
