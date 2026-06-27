@@ -70,6 +70,7 @@ ignore = ["RUF012"]  # Mutable class defaults are fine for Textual widgets
 [tool.ruff.lint.per-file-ignores]
 "src/dupeclean/report.py" = ["E501"]  # HTML templates have long lines
 "src/dupeclean/tui/**/*.py" = ["E501"]  # TUI Rich markup strings
+"src/dupeclean/completions.py" = ["E501"]  # Shell completion scripts
 "tests/**/*.py" = ["E501", "RUF001"]  # Test fixtures, emoji in test data
 
 [tool.mypy]
