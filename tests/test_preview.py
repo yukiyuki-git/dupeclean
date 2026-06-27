@@ -99,10 +99,7 @@ class TestPreviewFiles:
     def test_multiple_files(self, tmp_path):
         for name in ["a.txt", "b.txt", "c.txt"]:
             (tmp_path / name).write_text(f"content of {name}")
-        files = [
-            FileInfo.from_path(tmp_path / name)
-            for name in ["a.txt", "b.txt", "c.txt"]
-        ]
+        files = [FileInfo.from_path(tmp_path / name) for name in ["a.txt", "b.txt", "c.txt"]]
         files = [f for f in files if f is not None]
         previews = preview_files(files)
         assert len(previews) == 3
@@ -110,10 +107,7 @@ class TestPreviewFiles:
     def test_max_files(self, tmp_path):
         for i in range(10):
             (tmp_path / f"f{i}.txt").write_text(f"content {i}")
-        files = [
-            FileInfo.from_path(tmp_path / f"f{i}.txt")
-            for i in range(10)
-        ]
+        files = [FileInfo.from_path(tmp_path / f"f{i}.txt") for i in range(10)]
         files = [f for f in files if f is not None]
         previews = preview_files(files, max_files=3)
         assert len(previews) == 3

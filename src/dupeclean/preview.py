@@ -15,6 +15,7 @@ from .models import FileInfo, format_size
 @dataclass
 class FilePreview:
     """Preview of a file's contents."""
+
     path: Path
     size: int
     preview: str
@@ -25,8 +26,6 @@ class FilePreview:
     @property
     def size_display(self) -> str:
         return format_size(self.size)
-
-
 
 
 def preview_file(
