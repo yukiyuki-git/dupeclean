@@ -39,6 +39,12 @@ examples:
     )
     mode.add_argument("--top", "-t", type=int, metavar="N", help="Show top N largest files")
     mode.add_argument(
+        "--compare",
+        nargs=2,
+        metavar=("DIR_A", "DIR_B"),
+        help="Compare two directories",
+    )
+    mode.add_argument(
         "--report", choices=["json", "csv", "html"], metavar="FORMAT", help="Generate report"
     )
 
@@ -74,6 +80,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.report:
         return _run_report(target, args.report, args.output, args.no_dedup, config)
+    if args.compare:
+        return _run_compare(args.compare[0], args.compare[1], config)
     if args.cli or args.top or args.duplicates:
         return _run_cli(target, args, config)
     return _run_tui(target, config)
@@ -127,6 +135,40 @@ def _run_cli(target: Path, args: argparse.Namespace, config: Config) -> int:
         print()
         return 0
     print(result.summary_text())
+    return 0
+
+
+def _run_compare(dir_a: str, dir_b: str, config: Config) -> int:
+    from .compare import compare_directories
+
+    path_a = Path(dir_a).resolve()
+    path_b = Path(dir_b).resolve()
+    if not path_a.exists():
+        print(f"Error: Path not found: {path_a}", file=sys.stderr)
+        return 1
+    if not path_b.exists():
+        print(f"Error: Path not found: {path_b}", file=sys.stderr)
+        return 1
+
+    print(f"Comparing {path_a} vs {path_b}...\n")
+    result = compare_directories(path_a, path_b, config)
+    print(result.summary_text())
+
+    if result.only_in_a:
+        print(f"\n  Only in {path_a}:")
+        for fi in result.only_in_a[:20]:
+            print(f"    {fi.size_display:>10s}  {fi.path.name}")
+
+    if result.only_in_b:
+        print(f"\n  Only in {path_b}:")
+        for fi in result.only_in_b[:20]:
+            print(f"    {fi.size_display:>10s}  {fi.path.name}")
+
+    if result.modified:
+        print(f"\n  Modified ({len(result.modified)} files):")
+        for fa, fb in result.modified[:20]:
+            print(f"    {fa.path.name}: {fa.size_display} -> {fb.size_display}")
+
     return 0
 
 
