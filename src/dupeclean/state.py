@@ -14,6 +14,7 @@ from pathlib import Path
 @dataclass
 class DedupState:
     """State of a dedup operation."""
+
     operation_id: str
     status: str = "pending"  # pending, running, paused, completed, failed
     stage: str = ""
