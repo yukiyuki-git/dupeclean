@@ -13,6 +13,7 @@ from .models import format_size
 @dataclass
 class Metric:
     """A single metric measurement."""
+
     name: str
     value: float
     unit: str = ""
@@ -32,13 +33,13 @@ class Metric:
 @dataclass
 class MetricsCollector:
     """Collect and manage dedup metrics."""
+
     metrics: list[Metric] = field(default_factory=list)
 
-    def record(
-        self, name: str, value: float, unit: str = ""
-    ) -> None:
+    def record(self, name: str, value: float, unit: str = "") -> None:
         """Record a metric."""
         import time
+
         self.metrics.append(
             Metric(
                 name=name,
