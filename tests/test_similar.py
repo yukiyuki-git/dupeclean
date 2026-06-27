@@ -76,9 +76,7 @@ class TestCompareByteFrequency:
         assert sim < 0.9
 
     def test_nonexistent(self, tmp_path):
-        assert compare_byte_frequency(
-            tmp_path / "a", tmp_path / "b"
-        ) == 0.0
+        assert compare_byte_frequency(tmp_path / "a", tmp_path / "b") == 0.0
 
 
 class TestCompareChunks:
@@ -99,9 +97,7 @@ class TestCompareChunks:
         assert sim < 0.5
 
     def test_nonexistent(self, tmp_path):
-        assert compare_chunks(
-            tmp_path / "a", tmp_path / "b"
-        ) == 0.0
+        assert compare_chunks(tmp_path / "a", tmp_path / "b") == 0.0
 
 
 class TestFindSimilarContent:
@@ -113,14 +109,9 @@ class TestFindSimilarContent:
             ("c.txt", b"zzzzz " * 1000),
         ]:
             (tmp_path / name).write_bytes(content)
-        files = [
-            FileInfo.from_path(tmp_path / name)
-            for name in ["a.txt", "b.txt", "c.txt"]
-        ]
+        files = [FileInfo.from_path(tmp_path / name) for name in ["a.txt", "b.txt", "c.txt"]]
         files = [f for f in files if f is not None]
-        results = find_similar_content(
-            files, threshold=0.5, method="byte_freq"
-        )
+        results = find_similar_content(files, threshold=0.5, method="byte_freq")
         assert len(results) >= 1
 
     def test_empty_list(self):

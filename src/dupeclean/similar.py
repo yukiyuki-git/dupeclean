@@ -17,15 +17,14 @@ from .models import FileInfo
 @dataclass
 class SimilarityResult:
     """Similarity between two files."""
+
     file_a: Path
     file_b: Path
     similarity: float  # 0.0 to 1.0
     method: str  # "rolling_hash", "byte_frequency", "chunk_compare"
 
 
-def byte_frequency_hash(
-    filepath: Path, sample_size: int = 8192
-) -> bytes | None:
+def byte_frequency_hash(filepath: Path, sample_size: int = 8192) -> bytes | None:
     """Compute byte frequency histogram as a hash.
 
     Similar files tend to have similar byte distributions.
@@ -46,9 +45,7 @@ def byte_frequency_hash(
     return normalized
 
 
-def chunk_hash(
-    filepath: Path, chunk_size: int = 4096, num_chunks: int = 8
-) -> list[str] | None:
+def chunk_hash(filepath: Path, chunk_size: int = 4096, num_chunks: int = 8) -> list[str] | None:
     """Compute hashes of evenly-spaced chunks.
 
     Files with similar structure will have matching chunks.
@@ -76,9 +73,7 @@ def chunk_hash(
     return hashes
 
 
-def compare_byte_frequency(
-    file_a: Path, file_b: Path
-) -> float:
+def compare_byte_frequency(file_a: Path, file_b: Path) -> float:
     """Compare byte frequency distributions.
 
     Returns similarity score 0.0 to 1.0.
@@ -120,9 +115,7 @@ def compare_chunks(file_a: Path, file_b: Path) -> float:
     if len(chunks_a) != len(chunks_b):
         return 0.0
 
-    matches = sum(
-        1 for a, b in zip(chunks_a, chunks_b, strict=True) if a == b
-    )
+    matches = sum(1 for a, b in zip(chunks_a, chunks_b, strict=True) if a == b)
     return matches / len(chunks_a)
 
 
@@ -142,10 +135,7 @@ def find_similar_content(
         List of SimilarityResult sorted by similarity.
     """
     results: list[SimilarityResult] = []
-    compare_fn = (
-        compare_chunks if method == "chunk"
-        else compare_byte_frequency
-    )
+    compare_fn = compare_chunks if method == "chunk" else compare_byte_frequency
 
     # Group by size range for efficiency
     size_groups: dict[int, list[FileInfo]] = {}
@@ -188,13 +178,10 @@ def format_similarity_results(
 
     for r in results[:30]:
         lines.append(
-            f"  {r.similarity:.0%} similar "
-            f"({r.method}): {r.file_a.name} <-> {r.file_b.name}"
+            f"  {r.similarity:.0%} similar ({r.method}): {r.file_a.name} <-> {r.file_b.name}"
         )
 
     if len(results) > 30:
-        lines.append(
-            f"\n  ... and {len(results) - 30} more pairs"
-        )
+        lines.append(f"\n  ... and {len(results) - 30} more pairs")
 
     return "\n".join(lines)
