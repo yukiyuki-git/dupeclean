@@ -14,6 +14,7 @@ from .models import DuplicateGroup, FileInfo, format_size
 @dataclass
 class FinderResultV2:
     """Enhanced finder result."""
+
     groups: list[DuplicateGroup] = field(default_factory=list)
     method: str = ""
     files_scanned: int = 0

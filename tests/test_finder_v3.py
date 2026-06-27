@@ -13,9 +13,7 @@ from dupeclean.finder_v3 import (
 from dupeclean.models import FileInfo
 
 
-def _fi(
-    path: str, size: int = 100, hash_val: str = ""
-) -> FileInfo:
+def _fi(path: str, size: int = 100, hash_val: str = "") -> FileInfo:
     fi = FileInfo(path=Path(path), size=size, mtime=0)
     if hash_val:
         fi.quick_hash = hash_val
