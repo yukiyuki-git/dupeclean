@@ -13,6 +13,7 @@ from .models import DuplicateGroup, format_size
 @dataclass
 class Pattern:
     """A detected pattern."""
+
     pattern_type: str
     description: str
     frequency: int = 0
@@ -26,6 +27,7 @@ class Pattern:
 @dataclass
 class AnalysisV3Result:
     """Advanced analysis result."""
+
     patterns: list[Pattern] = field(default_factory=list)
     recommendations: list[str] = field(default_factory=list)
 
@@ -54,12 +56,14 @@ def analyze_advanced(groups: list[DuplicateGroup]) -> AnalysisV3Result:
     for ext, ext_gs in ext_groups.items():
         if len(ext_gs) >= 3:
             total_waste = sum(g.wasted_space for g in ext_gs)
-            result.patterns.append(Pattern(
-                pattern_type="extension_cluster",
-                description=f"Large cluster of .{ext} duplicates",
-                frequency=len(ext_gs),
-                impact=total_waste,
-            ))
+            result.patterns.append(
+                Pattern(
+                    pattern_type="extension_cluster",
+                    description=f"Large cluster of .{ext} duplicates",
+                    frequency=len(ext_gs),
+                    impact=total_waste,
+                )
+            )
 
     # Size anomalies
     sizes = [g.file_size for g in groups]
@@ -67,25 +71,29 @@ def analyze_advanced(groups: list[DuplicateGroup]) -> AnalysisV3Result:
         avg_size = sum(sizes) / len(sizes)
         for g in groups:
             if g.file_size > avg_size * 10:
-                result.patterns.append(Pattern(
-                    pattern_type="size_anomaly",
-                    description=(
-                        f"Group #{g.group_id} files are "
-                        f"{g.file_size / avg_size:.0f}x larger than average"
-                    ),
-                    frequency=1,
-                    impact=g.wasted_space,
-                ))
+                result.patterns.append(
+                    Pattern(
+                        pattern_type="size_anomaly",
+                        description=(
+                            f"Group #{g.group_id} files are "
+                            f"{g.file_size / avg_size:.0f}x larger than average"
+                        ),
+                        frequency=1,
+                        impact=g.wasted_space,
+                    )
+                )
 
     # High-dup groups
     for g in groups:
         if g.count >= 5:
-            result.patterns.append(Pattern(
-                pattern_type="high_duplication",
-                description=f"Group #{g.group_id} has {g.count} duplicates",
-                frequency=g.count,
-                impact=g.wasted_space,
-            ))
+            result.patterns.append(
+                Pattern(
+                    pattern_type="high_duplication",
+                    description=f"Group #{g.group_id} has {g.count} duplicates",
+                    frequency=g.count,
+                    impact=g.wasted_space,
+                )
+            )
 
     # Generate recommendations
     total_waste = sum(g.wasted_space for g in groups)

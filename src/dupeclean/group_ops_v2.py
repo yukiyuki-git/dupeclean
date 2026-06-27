@@ -13,6 +13,7 @@ from .models import DuplicateGroup, FileInfo
 @dataclass
 class OperationV2:
     """An enhanced operation."""
+
     operation_id: str
     operation_type: str
     group_id: int
@@ -32,6 +33,7 @@ class OperationV2:
 @dataclass
 class OperationsManagerV2:
     """Enhanced operations manager."""
+
     operations: list[OperationV2] = field(default_factory=list)
 
     def add(self, operation: OperationV2) -> None:
@@ -56,12 +58,14 @@ def create_operations_v2(
     """Create operations for groups."""
     manager = OperationsManagerV2()
     for g in groups:
-        manager.add(OperationV2(
-            operation_id=f"op_{g.group_id}",
-            operation_type=op_type,
-            group_id=g.group_id,
-            files=g.files,
-        ))
+        manager.add(
+            OperationV2(
+                operation_id=f"op_{g.group_id}",
+                operation_type=op_type,
+                group_id=g.group_id,
+                files=g.files,
+            )
+        )
     return manager
 
 

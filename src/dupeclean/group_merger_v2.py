@@ -13,6 +13,7 @@ from .models import DuplicateGroup, FileInfo
 @dataclass
 class MergeConflict:
     """A conflict during merge."""
+
     group_a_id: int
     group_b_id: int
     conflicting_files: list[FileInfo] = field(default_factory=list)
@@ -22,6 +23,7 @@ class MergeConflict:
 @dataclass
 class MergeResultV2:
     """Enhanced merge result."""
+
     original_count: int = 0
     merged_count: int = 0
     conflicts: list[MergeConflict] = field(default_factory=list)

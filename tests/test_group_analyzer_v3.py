@@ -19,7 +19,9 @@ def _fi(path: str, size: int = 100, ext: str = ".txt") -> FileInfo:
 
 def _group(gid: int, size: int, count: int, ext: str = ".txt") -> DuplicateGroup:
     return DuplicateGroup(
-        group_id=gid, hash_value=f"h{gid}", file_size=size,
+        group_id=gid,
+        hash_value=f"h{gid}",
+        file_size=size,
         files=[_fi(f"/f{i}{ext}", size) for i in range(count)],
     )
 

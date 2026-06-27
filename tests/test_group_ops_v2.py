@@ -19,7 +19,9 @@ def _fi(path: str, size: int = 100) -> FileInfo:
 
 def _group(gid: int, size: int, count: int) -> DuplicateGroup:
     return DuplicateGroup(
-        group_id=gid, hash_value=f"h{gid}", file_size=size,
+        group_id=gid,
+        hash_value=f"h{gid}",
+        file_size=size,
         files=[_fi(f"/f{i}", size) for i in range(count)],
     )
 
@@ -33,13 +35,17 @@ class TestOperationsManagerV2:
     def test_pending(self):
         mgr = OperationsManagerV2()
         mgr.add(OperationV2(operation_id="1", operation_type="test", group_id=0, status="pending"))
-        mgr.add(OperationV2(operation_id="2", operation_type="test", group_id=1, status="completed"))
+        mgr.add(
+            OperationV2(operation_id="2", operation_type="test", group_id=1, status="completed")
+        )
         assert len(mgr.pending) == 1
 
     def test_completed(self):
         mgr = OperationsManagerV2()
         mgr.add(OperationV2(operation_id="1", operation_type="test", group_id=0, status="pending"))
-        mgr.add(OperationV2(operation_id="2", operation_type="test", group_id=1, status="completed"))
+        mgr.add(
+            OperationV2(operation_id="2", operation_type="test", group_id=1, status="completed")
+        )
         assert len(mgr.completed) == 1
 
 
@@ -52,11 +58,18 @@ class TestCreateOperationsV2:
 
 class TestOperationV2:
     def test_file_count(self):
-        op = OperationV2(operation_id="1", operation_type="test", group_id=0, files=[_fi("/a"), _fi("/b")])
+        op = OperationV2(
+            operation_id="1", operation_type="test", group_id=0, files=[_fi("/a"), _fi("/b")]
+        )
         assert op.file_count == 2
 
     def test_total_size(self):
-        op = OperationV2(operation_id="1", operation_type="test", group_id=0, files=[_fi("/a", 100), _fi("/b", 200)])
+        op = OperationV2(
+            operation_id="1",
+            operation_type="test",
+            group_id=0,
+            files=[_fi("/a", 100), _fi("/b", 200)],
+        )
         assert op.total_size == 300
 
 
