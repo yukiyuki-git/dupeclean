@@ -13,6 +13,7 @@ from .models import DuplicateGroup, FileInfo, format_size
 @dataclass
 class Strategy:
     """A cleanup strategy."""
+
     name: str
     description: str
     select_keeper: str  # "shortest", "newest", "oldest", "deepest", "shallowest"
@@ -22,6 +23,7 @@ class Strategy:
 @dataclass
 class StrategyResult:
     """Result of applying a strategy to a group."""
+
     group_id: int
     strategy: str
     keeper: FileInfo
@@ -104,16 +106,12 @@ def format_strategy_results(results: list[StrategyResult]) -> str:
 
     total_savings = sum(r.savings for r in results)
     lines = [
-        f"Strategy Results: {len(results)} groups, "
-        f"{format_size(total_savings)} savings",
+        f"Strategy Results: {len(results)} groups, {format_size(total_savings)} savings",
         "",
     ]
 
     for r in results[:10]:
-        lines.append(
-            f"  Group #{r.group_id} [{r.strategy}]: "
-            f"KEEP {r.keeper.path.name}"
-        )
+        lines.append(f"  Group #{r.group_id} [{r.strategy}]: KEEP {r.keeper.path.name}")
         for f in r.to_remove[:3]:
             lines.append(f"    REMOVE {f.path.name}")
 
