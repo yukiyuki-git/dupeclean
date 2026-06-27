@@ -13,6 +13,7 @@ from pathlib import Path
 @dataclass
 class RateLimiter:
     """Token bucket rate limiter for I/O operations."""
+
     max_ops_per_second: float = 100.0
     burst_size: int = 10
     _tokens: float = 0.0
@@ -61,9 +62,7 @@ class RateLimiter:
         return self._total_ops
 
 
-def create_limiter(
-    ops_per_second: float = 100.0, burst: int = 10
-) -> RateLimiter:
+def create_limiter(ops_per_second: float = 100.0, burst: int = 10) -> RateLimiter:
     """Create a rate limiter."""
     return RateLimiter(
         max_ops_per_second=ops_per_second,
@@ -74,9 +73,7 @@ def create_limiter(
 class ThrottledReader:
     """Rate-limited file reader."""
 
-    def __init__(
-        self, filepath: Path, limiter: RateLimiter | None = None
-    ) -> None:
+    def __init__(self, filepath: Path, limiter: RateLimiter | None = None) -> None:
         self.filepath = filepath
         self.limiter = limiter or create_limiter(1000, 100)
         self._file = None
