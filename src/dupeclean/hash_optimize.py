@@ -15,6 +15,7 @@ from .models import FileInfo
 @dataclass
 class HashStats:
     """Statistics for hashing operations."""
+
     files_hashed: int = 0
     bytes_hashed: int = 0
     duration: float = 0.0
@@ -98,6 +99,7 @@ def _create_hasher(algorithm: str):
     if algorithm == "xxhash":
         try:
             import xxhash
+
             return xxhash.xxh3_128()
         except ImportError:
             pass

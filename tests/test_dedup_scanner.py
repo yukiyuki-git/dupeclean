@@ -29,9 +29,7 @@ class TestScanForDuplicates:
         node_modules = tmp_path / "node_modules"
         node_modules.mkdir()
         (node_modules / "pkg.js").write_text("pkg")
-        result = scan_for_duplicates(
-            tmp_path, ignore_patterns=["node_modules"]
-        )
+        result = scan_for_duplicates(tmp_path, ignore_patterns=["node_modules"])
         assert result.file_count == 1
 
     def test_empty_dir(self, tmp_path):
