@@ -22,15 +22,18 @@ class DupeCleanHandler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         """Handle GET requests."""
-        if self.path == "/":
+        if self.path == "/" or self.path == "":
+            self._serve_dashboard()
+        elif self.path == "/api":
             self._json_response(
                 {
                     "name": "DupeClean API",
                     "version": "0.1.0",
                     "endpoints": [
-                        "GET /",
-                        "GET /scan?path=<path>",
-                        "GET /health",
+                        "GET / — Web dashboard",
+                        "GET /api — This info",
+                        "GET /scan?path=<path> — Scan directory",
+                        "GET /health — Health check",
                     ],
                 }
             )
@@ -40,6 +43,24 @@ class DupeCleanHandler(BaseHTTPRequestHandler):
             self._handle_scan()
         else:
             self._error_response(404, "Not found")
+
+    def _serve_dashboard(self) -> None:
+        """Serve the web dashboard HTML."""
+        dashboard_path = Path(__file__).parent / "static" / "dashboard.html"
+        if dashboard_path.exists():
+            content = dashboard_path.read_text(encoding="utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(content.encode())
+        else:
+            self._json_response(
+                {
+                    "name": "DupeClean API",
+                    "version": "0.1.0",
+                    "message": "Dashboard not found. Visit /api for API info.",
+                }
+            )
 
     def _handle_scan(self) -> None:
         """Handle scan request."""

@@ -33,10 +33,16 @@ def _get_json(url: str) -> dict:
 
 
 class TestDupeCleanServer:
-    def test_root_endpoint(self, server):
-        data = _get_json(f"{server.url}/")
+    def test_api_endpoint(self, server):
+        data = _get_json(f"{server.url}/api")
         assert data["name"] == "DupeClean API"
         assert data["version"] == "0.1.0"
+
+    def test_root_serves_html(self, server):
+        url = f"{server.url}/"
+        with urllib.request.urlopen(url) as resp:
+            content = resp.read().decode()
+            assert "DupeClean" in content
 
     def test_health_endpoint(self, server):
         data = _get_json(f"{server.url}/health")

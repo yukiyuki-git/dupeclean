@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DupeClean Dashboard</title>
+<style>
+:root {
+    --bg: #1a1b26; --fg: #c0caf5; --accent: #7aa2f7;
+    --red: #f7768e; --green: #9ece6a; --yellow: #e0af68;
+    --border: #292e42; --card: #24283b;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg); color: var(--fg);
+    padding: 2rem; max-width: 1200px; margin: 0 auto;
+}
+h1 { color: var(--accent); margin-bottom: 0.5rem; }
+.subtitle { color: #565f89; margin-bottom: 2rem; }
+.search-bar {
+    display: flex; gap: 1rem; margin-bottom: 2rem;
+}
+.search-bar input {
+    flex: 1; padding: 0.8rem 1rem; background: var(--card);
+    border: 1px solid var(--border); border-radius: 8px;
+    color: var(--fg); font-size: 1rem;
+}
+.search-bar button {
+    padding: 0.8rem 1.5rem; background: var(--accent);
+    border: none; border-radius: 8px; color: #1a1b26;
+    font-weight: bold; cursor: pointer; font-size: 1rem;
+}
+.search-bar button:hover { opacity: 0.9; }
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem; margin-bottom: 2rem;
+}
+.card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.2rem;
+}
+.card .label {
+    color: #565f89; font-size: 0.85rem;
+    text-transform: uppercase;
+}
+.card .value {
+    font-size: 1.8rem; font-weight: 700;
+    color: var(--accent);
+}
+.card .value.warn { color: var(--red); }
+.card .value.good { color: var(--green); }
+table {
+    width: 100%; border-collapse: collapse; margin-bottom: 2rem;
+}
+th {
+    text-align: left; padding: 0.8rem;
+    border-bottom: 2px solid var(--border);
+    color: var(--accent); font-size: 0.85rem;
+}
+td { padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); }
+tr:hover { background: rgba(122, 162, 247, 0.05); }
+h2 { color: var(--fg); margin: 1.5rem 0 1rem; font-size: 1.3rem; }
+.loading { text-align: center; padding: 2rem; color: #565f89; }
+.error { color: var(--red); padding: 1rem; }
+.bar { display: inline-block; height: 1em; background: var(--accent);
+    border-radius: 2px; vertical-align: middle; }
+</style>
+</head>
+<body>
+<h1>🔍 DupeClean Dashboard</h1>
+<p class="subtitle">Smart disk analyzer &amp; duplicate file finder</p>
+
+<div class="search-bar">
+    <input type="text" id="pathInput" placeholder="Enter directory path..."
+           value="." />
+    <button onclick="startScan()">Scan</button>
+</div>
+
+<div id="results" class="loading">
+    Enter a path and click Scan to begin analysis.
+</div>
+
+<script>
+const API = '';
+
+async function startScan() {
+    const path = document.getElementById('pathInput').value;
+    const results = document.getElementById('results');
+    results.innerHTML = '<div class="loading">Scanning...</div>';
+
+    try {
+        const resp = await fetch(`${API}/scan?path=${encodeURIComponent(path)}`);
+        if (!resp.ok) {
+            const err = await resp.json();
+            results.innerHTML = `<div class="error">Error: ${err.error}</div>`;
+            return;
+        }
+        const data = await resp.json();
+        renderResults(data);
+    } catch (e) {
+        results.innerHTML = `<div class="error">Connection error: ${e.message}</div>`;
+    }
+}
+
+function renderResults(data) {
+    const s = data.summary;
+    const dupWarn = s.duplicate_groups > 0 ? 'warn' : 'good';
+
+    let html = '<div class="grid">';
+    html += card('Total Size', s.total_size_display);
+    html += card('Files', s.total_files.toLocaleString());
+    html += card('Directories', s.total_dirs.toLocaleString());
+    html += card('Scan Time', s.scan_duration + 's');
+    html += card('Duplicates', s.duplicate_groups.toLocaleString(), dupWarn);
+    html += card('Wasted', formatSize(s.wasted_space), dupWarn);
+    html += '</div>';
+
+    if (data.top_files && data.top_files.length) {
+        html += '<h2>📦 Largest Files</h2>';
+        html += '<table><thead><tr><th>Name</th><th>Size</th></tr></thead><tbody>';
+        for (const f of data.top_files.slice(0, 20)) {
+            html += `<tr><td>${basename(f.path)}</td><td>${f.size_display}</td></tr>`;
+        }
+        html += '</tbody></table>';
+    }
+
+    if (data.duplicates && data.duplicates.length) {
+        html += '<h2>🔄 Duplicate Groups</h2>';
+        html += '<table><thead><tr><th>#</th><th>Files</th><th>Size</th><th>Wasted</th></tr></thead><tbody>';
+        for (const g of data.duplicates.slice(0, 20)) {
+            const wasted = g.file_size * (g.count - 1);
+            html += `<tr><td>${g.group_id}</td><td>${g.count}</td>`;
+            html += `<td>${formatSize(g.file_size)}</td>`;
+            html += `<td class="warn">${formatSize(wasted)}</td></tr>`;
+        }
+        html += '</tbody></table>';
+    }
+
+    document.getElementById('results').innerHTML = html;
+}
+
+function card(label, value, cls) {
+    cls = cls || '';
+    return `<div class="card"><div class="label">${label}</div>` +
+           `<div class="value ${cls}">${value}</div></div>`;
+}
+
+function formatSize(bytes) {
+    if (bytes === 0) return '0 B';
+    const units = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
+    let i = 0;
+    let size = bytes;
+    while (size >= 1024 && i < units.length - 1) { size /= 1024; i++; }
+    return size.toFixed(1) + ' ' + units[i];
+}
+
+function basename(path) {
+    return path.split(/[/\\]/).pop();
+}
+</script>
+</body>
+</html>

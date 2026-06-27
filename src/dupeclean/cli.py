@@ -48,15 +48,21 @@ examples:
         "--report", choices=["json", "csv", "html"], metavar="FORMAT", help="Generate report"
     )
     mode.add_argument(
-        "--quick", "-q", action="store_true",
+        "--quick",
+        "-q",
+        action="store_true",
         help="Quick scan (size-based, no hashing)",
     )
     mode.add_argument(
-        "--api", action="store_true",
+        "--api",
+        action="store_true",
         help="Start REST API server",
     )
     mode.add_argument(
-        "--api-port", type=int, default=8080, metavar="PORT",
+        "--api-port",
+        type=int,
+        default=8080,
+        metavar="PORT",
         help="API server port (default: 8080)",
     )
 
