@@ -21,8 +21,12 @@ class TestCleanupContext:
         ctx = CleanupContext(
             root=Path("/test"),
             groups=[
-                DuplicateGroup(group_id=0, hash_value="a", file_size=100, files=[_fi("/a"), _fi("/b")]),
-                DuplicateGroup(group_id=1, hash_value="b", file_size=200, files=[_fi("/c"), _fi("/d")]),
+                DuplicateGroup(
+                    group_id=0, hash_value="a", file_size=100, files=[_fi("/a"), _fi("/b")]
+                ),
+                DuplicateGroup(
+                    group_id=1, hash_value="b", file_size=200, files=[_fi("/c"), _fi("/d")]
+                ),
             ],
         )
         assert ctx.total_groups == 2
@@ -31,7 +35,12 @@ class TestCleanupContext:
         ctx = CleanupContext(
             root=Path("/test"),
             groups=[
-                DuplicateGroup(group_id=0, hash_value="a", file_size=100, files=[_fi("/a"), _fi("/b"), _fi("/c")]),
+                DuplicateGroup(
+                    group_id=0,
+                    hash_value="a",
+                    file_size=100,
+                    files=[_fi("/a"), _fi("/b"), _fi("/c")],
+                ),
             ],
         )
         assert ctx.total_duplicates == 3

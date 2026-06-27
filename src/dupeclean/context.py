@@ -14,6 +14,7 @@ from .models import DuplicateGroup, FileInfo, format_size
 @dataclass
 class CleanupContext:
     """Context for a cleanup operation."""
+
     root: Path
     groups: list[DuplicateGroup] = field(default_factory=list)
     files: list[FileInfo] = field(default_factory=list)
