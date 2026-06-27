@@ -19,3 +19,9 @@ Thumbs.db
 .venv/
 venv/
 env/
+
+# Generated reports
+*.html
+!src/dupeclean/static/dashboard.html
+report.json
+report.csv
