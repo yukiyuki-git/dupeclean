@@ -17,6 +17,7 @@ LOCK_FILE = ".dupeclean.lock"
 @dataclass
 class LockInfo:
     """Lock information."""
+
     pid: int
     timestamp: float
     operation: str
@@ -30,9 +31,7 @@ class FileLock:
         self.lock_path = lock_path
         self._locked = False
 
-    def acquire(
-        self, operation: str = "scan", timeout: float = 30.0
-    ) -> bool:
+    def acquire(self, operation: str = "scan", timeout: float = 30.0) -> bool:
         """Acquire the lock.
 
         Args:
@@ -79,12 +78,14 @@ class FileLock:
                 path=str(self.lock_path.parent),
             )
             self.lock_path.write_text(
-                json.dumps({
-                    "pid": lock_info.pid,
-                    "timestamp": lock_info.timestamp,
-                    "operation": lock_info.operation,
-                    "path": lock_info.path,
-                }),
+                json.dumps(
+                    {
+                        "pid": lock_info.pid,
+                        "timestamp": lock_info.timestamp,
+                        "operation": lock_info.operation,
+                        "path": lock_info.path,
+                    }
+                ),
                 encoding="utf-8",
             )
             return True
@@ -97,9 +98,7 @@ class FileLock:
             return False
 
         try:
-            data = json.loads(
-                self.lock_path.read_text(encoding="utf-8")
-            )
+            data = json.loads(self.lock_path.read_text(encoding="utf-8"))
             lock_time = data.get("timestamp", 0)
             return (time.time() - lock_time) > max_age
         except (json.JSONDecodeError, OSError):
@@ -115,9 +114,7 @@ class FileLock:
             return None
 
         try:
-            data = json.loads(
-                self.lock_path.read_text(encoding="utf-8")
-            )
+            data = json.loads(self.lock_path.read_text(encoding="utf-8"))
             return LockInfo(
                 pid=data["pid"],
                 timestamp=data["timestamp"],

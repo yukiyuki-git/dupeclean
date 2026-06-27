@@ -40,12 +40,14 @@ class TestFileLock:
 
         # Create a stale lock (old timestamp)
         lock_path.write_text(
-            json.dumps({
-                "pid": 99999,
-                "timestamp": 0,
-                "operation": "old",
-                "path": str(tmp_path),
-            })
+            json.dumps(
+                {
+                    "pid": 99999,
+                    "timestamp": 0,
+                    "operation": "old",
+                    "path": str(tmp_path),
+                }
+            )
         )
         lock = FileLock(lock_path)
         assert lock._is_stale() is True
