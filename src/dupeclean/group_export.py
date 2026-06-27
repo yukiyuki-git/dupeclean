@@ -36,14 +36,16 @@ def export_groups_csv(groups: list[DuplicateGroup]) -> str:
     writer.writerow(["group_id", "hash", "file_size", "wasted_space", "count", "file_path"])
     for g in groups:
         for fi in g.files:
-            writer.writerow([
-                g.group_id,
-                g.hash_value,
-                g.file_size,
-                g.wasted_space,
-                g.count,
-                str(fi.path),
-            ])
+            writer.writerow(
+                [
+                    g.group_id,
+                    g.hash_value,
+                    g.file_size,
+                    g.wasted_space,
+                    g.count,
+                    str(fi.path),
+                ]
+            )
     return output.getvalue()
 
 

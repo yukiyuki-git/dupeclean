@@ -22,11 +22,15 @@ def _fi(path: str, size: int = 100) -> FileInfo:
 def _make_groups() -> list[DuplicateGroup]:
     return [
         DuplicateGroup(
-            group_id=0, hash_value="abc", file_size=1000,
+            group_id=0,
+            hash_value="abc",
+            file_size=1000,
             files=[_fi("/a"), _fi("/b"), _fi("/c")],
         ),
         DuplicateGroup(
-            group_id=1, hash_value="def", file_size=2000,
+            group_id=1,
+            hash_value="def",
+            file_size=2000,
             files=[_fi("/d"), _fi("/e")],
         ),
     ]
