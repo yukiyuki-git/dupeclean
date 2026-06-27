@@ -54,9 +54,11 @@ class TestAnalyzeGroupPatterns:
 
 class TestGroupAnalysisResult:
     def test_has_insights(self):
-        result = GroupAnalysisResult(insights=[
-            GroupInsight(group_id=0, insight_type="test", title="test", description="test")
-        ])
+        result = GroupAnalysisResult(
+            insights=[
+                GroupInsight(group_id=0, insight_type="test", title="test", description="test")
+            ]
+        )
         assert result.has_insights is True
 
 
@@ -66,8 +68,12 @@ class TestFormatGroupInsights:
         assert "No insights" in format_group_insights(result)
 
     def test_with_insights(self):
-        result = GroupAnalysisResult(insights=[
-            GroupInsight(group_id=0, insight_type="test", title="Test insight", description="Details")
-        ])
+        result = GroupAnalysisResult(
+            insights=[
+                GroupInsight(
+                    group_id=0, insight_type="test", title="Test insight", description="Details"
+                )
+            ]
+        )
         text = format_group_insights(result)
         assert "Test insight" in text

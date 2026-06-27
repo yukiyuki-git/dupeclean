@@ -13,6 +13,7 @@ from .models import DuplicateGroup, FileInfo
 @dataclass
 class MergeResult:
     """Result of merging groups."""
+
     original_count: int = 0
     merged_count: int = 0
     groups_merged: int = 0

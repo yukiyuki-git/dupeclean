@@ -13,6 +13,7 @@ from .models import DuplicateGroup
 @dataclass
 class GroupInsight:
     """An insight about a group."""
+
     group_id: int
     insight_type: str  # "pattern", "anomaly", "optimization"
     title: str
@@ -23,6 +24,7 @@ class GroupInsight:
 @dataclass
 class GroupAnalysisResult:
     """Result of enhanced group analysis."""
+
     insights: list[GroupInsight] = field(default_factory=list)
     patterns: dict[str, int] = field(default_factory=dict)
 
@@ -50,40 +52,46 @@ def analyze_group_patterns(groups: list[DuplicateGroup]) -> GroupAnalysisResult:
     # Large group insights
     for g in groups:
         if g.count >= 10:
-            result.insights.append(GroupInsight(
-                group_id=g.group_id,
-                insight_type="anomaly",
-                title=f"Large group: {g.count} files",
-                description=f"Group has {g.count} duplicates of {g.size_display} files",
-                severity="warning",
-            ))
+            result.insights.append(
+                GroupInsight(
+                    group_id=g.group_id,
+                    insight_type="anomaly",
+                    title=f"Large group: {g.count} files",
+                    description=f"Group has {g.count} duplicates of {g.size_display} files",
+                    severity="warning",
+                )
+            )
 
     # High waste insights
     for g in groups:
         if g.wasted_space > 100_000_000:  # >100MB
-            result.insights.append(GroupInsight(
-                group_id=g.group_id,
-                insight_type="optimization",
-                title=f"High waste: {g.wasted_display}",
-                description=f"Group wastes {g.wasted_display} with {g.count} copies",
-                severity="warning",
-            ))
+            result.insights.append(
+                GroupInsight(
+                    group_id=g.group_id,
+                    insight_type="optimization",
+                    title=f"High waste: {g.wasted_display}",
+                    description=f"Group wastes {g.wasted_display} with {g.count} copies",
+                    severity="warning",
+                )
+            )
 
     # Extension dominance
     if ext_counts:
         top_ext = max(ext_counts.items(), key=lambda x: x[1])
         if top_ext[1] > len(groups) * 0.5:
-            result.insights.append(GroupInsight(
-                group_id=-1,
-                insight_type="pattern",
-                title=f"Dominant extension: .{top_ext[0]}",
-                description=(
-                    f"{top_ext[1]} groups "
-                    f"({top_ext[1] / len(groups) * 100:.0f}%) "
-                    f"share the same extension"
-                ),
-                severity="info",
-            ))
+            result.insights.append(
+                GroupInsight(
+                    group_id=-1,
+                    insight_type="pattern",
+                    title=f"Dominant extension: .{top_ext[0]}",
+                    description=(
+                        f"{top_ext[1]} groups "
+                        f"({top_ext[1] / len(groups) * 100:.0f}%) "
+                        f"share the same extension"
+                    ),
+                    severity="info",
+                )
+            )
 
     return result
 

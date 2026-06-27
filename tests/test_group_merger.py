@@ -19,10 +19,8 @@ def _fi(path: str, size: int = 100) -> FileInfo:
 class TestMergeOverlappingGroups:
     def test_no_overlap(self):
         groups = [
-            DuplicateGroup(group_id=0, hash_value="a", file_size=100,
-                           files=[_fi("/a"), _fi("/b")]),
-            DuplicateGroup(group_id=1, hash_value="b", file_size=200,
-                           files=[_fi("/c"), _fi("/d")]),
+            DuplicateGroup(group_id=0, hash_value="a", file_size=100, files=[_fi("/a"), _fi("/b")]),
+            DuplicateGroup(group_id=1, hash_value="b", file_size=200, files=[_fi("/c"), _fi("/d")]),
         ]
         merged, result = merge_overlapping_groups(groups)
         assert len(merged) == 2
@@ -31,10 +29,8 @@ class TestMergeOverlappingGroups:
     def test_with_overlap(self):
         shared = _fi("/shared", 100)
         groups = [
-            DuplicateGroup(group_id=0, hash_value="a", file_size=100,
-                           files=[_fi("/a"), shared]),
-            DuplicateGroup(group_id=1, hash_value="b", file_size=100,
-                           files=[shared, _fi("/c")]),
+            DuplicateGroup(group_id=0, hash_value="a", file_size=100, files=[_fi("/a"), shared]),
+            DuplicateGroup(group_id=1, hash_value="b", file_size=100, files=[shared, _fi("/c")]),
         ]
         merged, result = merge_overlapping_groups(groups)
         assert len(merged) == 1
