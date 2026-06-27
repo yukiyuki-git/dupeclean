@@ -19,6 +19,7 @@ DB_FILE_NAME = "dupeclean_cache.db"
 @dataclass
 class CacheEntry:
     """A cached file entry."""
+
     path: str
     size: int
     mtime: float
@@ -162,9 +163,7 @@ class ScanCache:
         )
         self._conn.commit()
 
-    def get_uncached(
-        self, files: list[FileInfo]
-    ) -> list[FileInfo]:
+    def get_uncached(self, files: list[FileInfo]) -> list[FileInfo]:
         """Filter files to only those not in cache or changed."""
         result = []
         for fi in files:
@@ -184,11 +183,7 @@ class ScanCache:
         hits = 0
         for fi in files:
             entry = self.get(fi.path)
-            if (
-                entry
-                and entry.size == fi.size
-                and entry.mtime == fi.mtime
-            ):
+            if entry and entry.size == fi.size and entry.mtime == fi.mtime:
                 fi.quick_hash = entry.quick_hash
                 fi.medium_hash = entry.medium_hash
                 fi.full_hash = entry.full_hash
@@ -221,9 +216,7 @@ class ScanCache:
         )
         self._conn.commit()
 
-    def get_scan_history(
-        self, root: str | None = None, limit: int = 20
-    ) -> list[dict]:
+    def get_scan_history(self, root: str | None = None, limit: int = 20) -> list[dict]:
         """Get scan history."""
         assert self._conn is not None
         if root:
@@ -258,29 +251,21 @@ class ScanCache:
         """Remove cache entries older than max_age_days."""
         assert self._conn is not None
         cutoff = time.time() - (max_age_days * 86400)
-        cursor = self._conn.execute(
-            "DELETE FROM files WHERE scan_time < ?", (cutoff,)
-        )
+        cursor = self._conn.execute("DELETE FROM files WHERE scan_time < ?", (cutoff,))
         self._conn.commit()
         return cursor.rowcount
 
     def clear(self) -> None:
         """Clear all cache data."""
         assert self._conn is not None
-        self._conn.executescript(
-            "DELETE FROM files; DELETE FROM scans;"
-        )
+        self._conn.executescript("DELETE FROM files; DELETE FROM scans;")
         self._conn.commit()
 
     def stats(self) -> dict:
         """Get cache statistics."""
         assert self._conn is not None
-        file_count = self._conn.execute(
-            "SELECT COUNT(*) FROM files"
-        ).fetchone()[0]
-        scan_count = self._conn.execute(
-            "SELECT COUNT(*) FROM scans"
-        ).fetchone()[0]
+        file_count = self._conn.execute("SELECT COUNT(*) FROM files").fetchone()[0]
+        scan_count = self._conn.execute("SELECT COUNT(*) FROM scans").fetchone()[0]
         db_size = self.db_path.stat().st_size if self.db_path.exists() else 0
         return {
             "cached_files": file_count,

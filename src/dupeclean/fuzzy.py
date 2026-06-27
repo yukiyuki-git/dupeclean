@@ -18,24 +18,20 @@ from .models import FileInfo, format_size
 
 # Common suffixes added by OS/browsers when copying
 COPY_SUFFIXES = [
-    r"\s*\(\d+\)",           # (1), (2), etc.
-    r"\s*-\s*Copy",          # - Copy
-    r"\s*copy\s*\d*",        # copy, copy2
-    r"\s*_\d+",              # _1, _2
-    r"\s*\(copy\)",          # (copy)
-    r"\s*副本",              # Chinese "copy"
-    r"\s*\[duplicate\]",     # [duplicate]
-    r"\s*\(conflict\)",      # (conflict)
+    r"\s*\(\d+\)",  # (1), (2), etc.
+    r"\s*-\s*Copy",  # - Copy
+    r"\s*copy\s*\d*",  # copy, copy2
+    r"\s*_\d+",  # _1, _2
+    r"\s*\(copy\)",  # (copy)
+    r"\s*副本",  # Chinese "copy"
+    r"\s*\[duplicate\]",  # [duplicate]
+    r"\s*\(conflict\)",  # (conflict)
 ]
 
-COPY_PATTERN = re.compile(
-    "|".join(COPY_SUFFIXES), re.IGNORECASE
-)
+COPY_PATTERN = re.compile("|".join(COPY_SUFFIXES), re.IGNORECASE)
 
 # Pattern to extract version numbers
-VERSION_PATTERN = re.compile(
-    r"[_\-\s]v?(\d+(?:\.\d+)*)", re.IGNORECASE
-)
+VERSION_PATTERN = re.compile(r"[_\-\s]v?(\d+(?:\.\d+)*)", re.IGNORECASE)
 
 # Pattern to extract trailing numbers
 TRAILING_NUM_PATTERN = re.compile(r"[_\-\s](\d+)$")
@@ -44,6 +40,7 @@ TRAILING_NUM_PATTERN = re.compile(r"[_\-\s](\d+)$")
 @dataclass
 class SimilarGroup:
     """A group of files with similar names."""
+
     group_id: int
     base_name: str
     files: list[FileInfo] = field(default_factory=list)
@@ -161,9 +158,7 @@ def find_similar_names(
 
             if len(similar) >= 2:
                 used.add(i)
-                avg_score = (
-                    sum(scores) / len(scores) if scores else 0.0
-                )
+                avg_score = sum(scores) / len(scores) if scores else 0.0
                 base = normalize_filename(name_a)
                 groups.append(
                     SimilarGroup(

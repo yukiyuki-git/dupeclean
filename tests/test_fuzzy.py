@@ -58,9 +58,7 @@ class TestSimilarityScore:
         assert score < 0.5
 
     def test_version_variants(self):
-        score = similarity_score(
-            "report_v1.pdf", "report_v2.pdf"
-        )
+        score = similarity_score("report_v1.pdf", "report_v2.pdf")
         assert score > 0.8
 
 
