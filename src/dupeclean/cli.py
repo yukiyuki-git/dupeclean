@@ -47,6 +47,18 @@ examples:
     mode.add_argument(
         "--report", choices=["json", "csv", "html"], metavar="FORMAT", help="Generate report"
     )
+    mode.add_argument(
+        "--quick", "-q", action="store_true",
+        help="Quick scan (size-based, no hashing)",
+    )
+    mode.add_argument(
+        "--api", action="store_true",
+        help="Start REST API server",
+    )
+    mode.add_argument(
+        "--api-port", type=int, default=8080, metavar="PORT",
+        help="API server port (default: 8080)",
+    )
 
     options = parser.add_argument_group("options")
     options.add_argument("--output", "-o", type=Path, metavar="FILE", help="Output file for report")
@@ -82,6 +94,10 @@ def main(argv: list[str] | None = None) -> int:
         return _run_report(target, args.report, args.output, args.no_dedup, config)
     if args.compare:
         return _run_compare(args.compare[0], args.compare[1], config)
+    if args.api:
+        return _run_api(target, args.api_port, config)
+    if args.quick:
+        return _run_quick(target, config)
     if args.cli or args.top or args.duplicates:
         return _run_cli(target, args, config)
     return _run_tui(target, config)
@@ -169,6 +185,30 @@ def _run_compare(dir_a: str, dir_b: str, config: Config) -> int:
         for fa, fb in result.modified[:20]:
             print(f"    {fa.path.name}: {fa.size_display} -> {fb.size_display}")
 
+    return 0
+
+
+def _run_quick(target: Path, config: Config) -> int:
+    from .quickscan import format_quick_scan_result, quick_scan
+
+    files, stats, groups = quick_scan(target, config)
+    print(format_quick_scan_result(target, files, stats, groups))
+    return 0
+
+
+def _run_api(target: Path, port: int, config: Config) -> int:
+    from .api import DupeCleanServer
+
+    print(f"Starting DupeClean API server on port {port}...")
+    print(f"  Scan target: {target}")
+    print(f"  API URL: http://127.0.0.1:{port}/")
+    print("  Press Ctrl+C to stop\n")
+
+    server = DupeCleanServer(port=port)
+    try:
+        server.start(background=False)
+    except KeyboardInterrupt:
+        print("\nServer stopped.")
     return 0
 
 
