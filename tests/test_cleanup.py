@@ -1,6 +1,9 @@
 """Tests for DupeClean cleanup."""
+
 from pathlib import Path
+
 import pytest
+
 from dupeclean.cleanup import CleanupManager, auto_select_action
 from dupeclean.models import CleanupAction, DuplicateGroup, FileInfo
 
@@ -41,7 +44,7 @@ class TestCleanupManager:
         assert not paths[2].exists()
 
     def test_keep_newest(self, cleanup_files):
-        files, paths = cleanup_files
+        files, _paths = cleanup_files
         for i, fi in enumerate(files):
             fi.mtime = 100 + i * 10
         group = DuplicateGroup(group_id=0, hash_value="abc", file_size=files[0].size, files=files)
@@ -50,7 +53,7 @@ class TestCleanupManager:
         assert result.files_processed == 2
 
     def test_keep_oldest(self, cleanup_files):
-        files, paths = cleanup_files
+        files, _paths = cleanup_files
         for i, fi in enumerate(files):
             fi.mtime = 100 + i * 10
         group = DuplicateGroup(group_id=0, hash_value="abc", file_size=files[0].size, files=files)
@@ -59,7 +62,7 @@ class TestCleanupManager:
         assert result.files_processed == 2
 
     def test_progress_callback(self, cleanup_files):
-        files, paths = cleanup_files
+        files, _paths = cleanup_files
         group = DuplicateGroup(group_id=0, hash_value="abc", file_size=files[0].size, files=files)
         manager = CleanupManager(dry_run=True)
         messages = []

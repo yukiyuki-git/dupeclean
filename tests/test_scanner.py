@@ -1,6 +1,7 @@
 """Tests for DupeClean scanner."""
-from pathlib import Path
+
 import pytest
+
 from dupeclean.config import ScannerConfig
 from dupeclean.scanner import Scanner
 
@@ -23,7 +24,7 @@ def sample_dir(tmp_path):
 class TestScanner:
     def test_scan_directory(self, sample_dir):
         scanner = Scanner()
-        files, dirs, stats = scanner.scan(sample_dir)
+        _files, _dirs, stats = scanner.scan(sample_dir)
         assert stats.total_files == 6
         assert stats.total_dirs >= 2
         assert stats.total_size > 0
@@ -32,7 +33,7 @@ class TestScanner:
         test_file = tmp_path / "test.txt"
         test_file.write_text("hello")
         scanner = Scanner()
-        files, dirs, stats = scanner.scan(test_file)
+        files, _dirs, stats = scanner.scan(test_file)
         assert stats.total_files == 1
         assert files[0].size == 5
 
@@ -44,7 +45,7 @@ class TestScanner:
     def test_ignore_patterns(self, sample_dir):
         config = ScannerConfig(ignore_patterns=["subdir"])
         scanner = Scanner(config)
-        files, dirs, stats = scanner.scan(sample_dir)
+        _files, _dirs, stats = scanner.scan(sample_dir)
         assert stats.total_files == 3
 
     def test_skip_hidden(self, tmp_path):
@@ -54,7 +55,7 @@ class TestScanner:
         (hidden / "secret.txt").write_text("s")
         config = ScannerConfig(skip_hidden=True)
         scanner = Scanner(config)
-        files, dirs, stats = scanner.scan(tmp_path)
+        _files, _dirs, stats = scanner.scan(tmp_path)
         assert stats.total_files == 1
 
     def test_files_have_extensions(self, sample_dir):
@@ -72,6 +73,6 @@ class TestScanner:
 
     def test_sorted_children(self, sample_dir):
         scanner = Scanner()
-        _, dirs, _ = scanner.scan(sample_dir)
+        _, _dirs, _ = scanner.scan(sample_dir)
         children = scanner.get_sorted_children(sample_dir)
         assert len(children) > 0

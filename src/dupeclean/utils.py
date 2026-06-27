@@ -6,7 +6,6 @@ import fnmatch
 import os
 import sys
 from pathlib import Path
-from typing import Optional
 
 
 def is_hidden(path: Path) -> bool:
@@ -18,6 +17,7 @@ def is_hidden(path: Path) -> bool:
     if sys.platform == "win32":
         try:
             import ctypes
+
             attrs = ctypes.windll.kernel32.GetFileAttributesW(str(path))
             return bool(attrs & 2)
         except (AttributeError, OSError):
@@ -29,7 +29,7 @@ def matches_pattern(name: str, patterns: list[str]) -> bool:
     return any(fnmatch.fnmatch(name, p) for p in patterns)
 
 
-def safe_stat(path: Path, follow_symlinks: bool = False) -> Optional[os.stat_result]:
+def safe_stat(path: Path, follow_symlinks: bool = False) -> os.stat_result | None:
     try:
         return path.stat() if follow_symlinks else path.lstat()
     except (OSError, PermissionError):

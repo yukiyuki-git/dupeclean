@@ -1,7 +1,7 @@
 """Tests for DupeClean duplicate finder."""
-from pathlib import Path
+
 import pytest
-from dupeclean.config import Config
+
 from dupeclean.dedup import DuplicateFinder, quick_find_duplicates, update_scan_stats
 from dupeclean.models import FileInfo, ScanStats
 
@@ -21,7 +21,11 @@ def dupe_files(tmp_path):
         fi = FileInfo.from_path(p)
         if fi:
             files.append(fi)
-    for name, content in [("unique1.txt", b"unique 1"), ("unique2.txt", b"unique 2"), ("unique3.txt", b"unique 3")]:
+    for name, content in [
+        ("unique1.txt", b"unique 1"),
+        ("unique2.txt", b"unique 2"),
+        ("unique3.txt", b"unique 3"),
+    ]:
         p = tmp_path / name
         p.write_bytes(content)
         fi = FileInfo.from_path(p)

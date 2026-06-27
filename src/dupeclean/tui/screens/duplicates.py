@@ -1,10 +1,15 @@
 """Duplicates screen placeholder."""
-from textual.screen import Screen
+
 from textual.binding import Binding
+from textual.screen import Screen
 from textual.widgets import Static
+
 
 class DuplicateScreen(Screen):
     BINDINGS = [Binding("escape", "back", "Back")]
+
     def compose(self):
         yield Static("Duplicates screen")
-    def action_back(self): self.app.pop_screen()
+
+    def action_back(self):
+        self.app.pop_screen()

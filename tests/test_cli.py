@@ -1,7 +1,5 @@
 """Tests for DupeClean CLI."""
-import sys
-from pathlib import Path
-import pytest
+
 from dupeclean.cli import build_parser, main
 
 

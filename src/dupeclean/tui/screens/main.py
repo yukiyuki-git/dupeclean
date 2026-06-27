@@ -12,7 +12,6 @@ from ...analyzer import AnalysisResult
 from ...config import Config
 from ...models import format_duration, format_size
 
-
 CSS = """
 MainScreen {
     layout: grid;
@@ -90,25 +89,41 @@ class MainScreen(Screen):
         s = self.result.stats
         widgets: list[Static] = []
         widgets.append(Static("📊 Summary", classes="section-title"))
-        widgets.append(Static(f"  Total Size: [bold cyan]{format_size(s.total_size)}[/]    Files: [bold]{s.total_files:,}[/]    Dirs: [bold]{s.total_dirs:,}[/]    Scan: [dim]{format_duration(s.scan_duration)}[/]"))
+        widgets.append(
+            Static(
+                f"  Total Size: [bold cyan]{format_size(s.total_size)}[/]    Files: [bold]{s.total_files:,}[/]    Dirs: [bold]{s.total_dirs:,}[/]    Scan: [dim]{format_duration(s.scan_duration)}[/]"
+            )
+        )
         if self.result.duplicates:
             widgets.append(Static(""))
             widgets.append(Static("🔄 Duplicates", classes="section-title"))
-            widgets.append(Static(f"  Groups: [bold red]{s.duplicate_groups:,}[/]    Files: [bold red]{s.duplicate_files:,}[/]    Wasted: [bold red]{format_size(s.wasted_space)}[/] ([red]{s.dupe_percentage:.1f}%[/])"))
+            widgets.append(
+                Static(
+                    f"  Groups: [bold red]{s.duplicate_groups:,}[/]    Files: [bold red]{s.duplicate_files:,}[/]    Wasted: [bold red]{format_size(s.wasted_space)}[/] ([red]{s.dupe_percentage:.1f}%[/])"
+                )
+            )
         widgets.append(Static(""))
         widgets.append(Static("📁 Top File Types", classes="section-title"))
         for ext, count, size in self.result.top_extensions[:8]:
             pct = (size / s.total_size * 100) if s.total_size else 0
             bar_len = int(pct / 5)
             bar = "█" * bar_len + "░" * (20 - bar_len)
-            widgets.append(Static(f"  .{ext or '(none)':<10s} {bar} {format_size(size):>10s} ({count:>6,} files, {pct:5.1f}%)"))
+            widgets.append(
+                Static(
+                    f"  .{ext or '(none)':<10s} {bar} {format_size(size):>10s} ({count:>6,} files, {pct:5.1f}%)"
+                )
+            )
         widgets.append(Static(""))
         widgets.append(Static("📦 Largest Files", classes="section-title"))
         for i, fi in enumerate(self.result.largest_files[:8], 1):
             parent = str(fi.path.parent)
             if len(parent) > 50:
                 parent = "..." + parent[-47:]
-            widgets.append(Static(f"  {i:>3}. [bold]{fi.size_display:>10s}[/]  {fi.path.name}  [dim]{parent}[/]"))
+            widgets.append(
+                Static(
+                    f"  {i:>3}. [bold]{fi.size_display:>10s}[/]  {fi.path.name}  [dim]{parent}[/]"
+                )
+            )
         return widgets
 
     def _rebuild_content(self, builder) -> None:
@@ -145,7 +160,11 @@ class MainScreen(Screen):
         widgets = []
         widgets.append(Static("📦 Largest Files", classes="section-title"))
         for i, fi in enumerate(self.result.largest_files[:100], 1):
-            widgets.append(Static(f"  {i:>4}. [bold cyan]{fi.size_display:>10s}[/]  {fi.path.name}  [dim]{fi.path.parent}[/]"))
+            widgets.append(
+                Static(
+                    f"  {i:>4}. [bold cyan]{fi.size_display:>10s}[/]  {fi.path.name}  [dim]{fi.path.parent}[/]"
+                )
+            )
         return widgets
 
     def _build_duplicates(self) -> list:
@@ -154,9 +173,18 @@ class MainScreen(Screen):
         if not self.result.duplicates:
             widgets.append(Static("  No duplicates found! 🎉"))
             return widgets
-        widgets.append(Static(f"  {len(self.result.duplicates)} groups, {self.result.stats.duplicate_files} files, {format_size(self.result.stats.wasted_space)} wasted\n"))
+        widgets.append(
+            Static(
+                f"  {len(self.result.duplicates)} groups, {self.result.stats.duplicate_files} files, {format_size(self.result.stats.wasted_space)} wasted\n"
+            )
+        )
         for g in self.result.top_duplicates[:50]:
-            widgets.append(Static(f"  [bold red]Group #{g.group_id}[/]: {g.count} × {g.size_display} = [red]{g.wasted_display} wasted[/]"))
+            widgets.append(
+                Static(
+                    f"  [bold red]Group #{g.group_id}[/]: {g.count} x "
+                    f"{g.size_display} = [red]{g.wasted_display} wasted[/]"
+                )
+            )
             for fi in g.files:
                 widgets.append(Static(f"    [dim]└[/] {fi.path}"))
             widgets.append(Static(""))
@@ -170,7 +198,11 @@ class MainScreen(Screen):
             pct = (size / s.total_size * 100) if s.total_size else 0
             bar_len = int(pct / 2.5)
             bar = "█" * bar_len + "░" * (40 - bar_len)
-            widgets.append(Static(f"  .{ext or '(none)':<12s} {bar} [bold]{format_size(size):>10s}[/] ({count:>6,} files, {pct:5.1f}%)"))
+            widgets.append(
+                Static(
+                    f"  .{ext or '(none)':<12s} {bar} [bold]{format_size(size):>10s}[/] ({count:>6,} files, {pct:5.1f}%)"
+                )
+            )
         return widgets
 
     def _build_browse(self) -> list:
@@ -182,8 +214,12 @@ class MainScreen(Screen):
             return widgets
         children = self.result.get_dir_children(self.result.root)
         for child in children[:100]:
-            if hasattr(child, 'path') and hasattr(child, 'children'):
-                widgets.append(Static(f"  📁 [bold]{child.name}/[/]  [cyan]{child.size_display}[/]  [dim]{child.file_count} files, {child.dir_count} dirs[/]"))
+            if hasattr(child, "path") and hasattr(child, "children"):
+                widgets.append(
+                    Static(
+                        f"  📁 [bold]{child.name}/[/]  [cyan]{child.size_display}[/]  [dim]{child.file_count} files, {child.dir_count} dirs[/]"
+                    )
+                )
             else:
                 widgets.append(Static(f"  📄 {child.path.name}  [cyan]{child.size_display}[/]"))
         return widgets

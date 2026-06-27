@@ -1,10 +1,18 @@
 """Tests for DupeClean utils."""
-import sys
+
 from pathlib import Path
-import pytest
+
 from dupeclean.utils import (
-    create_hardlink, get_file_extension, human_count, is_hidden,
-    is_same_file, matches_pattern, safe_remove, safe_rmdir, safe_stat, truncate_path,
+    create_hardlink,
+    get_file_extension,
+    human_count,
+    is_hidden,
+    is_same_file,
+    matches_pattern,
+    safe_remove,
+    safe_rmdir,
+    safe_stat,
+    truncate_path,
 )
 
 

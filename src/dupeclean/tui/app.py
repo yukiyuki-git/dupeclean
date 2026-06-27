@@ -3,19 +3,18 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 from pathlib import Path
-from typing import Optional
 
 from textual import work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.css.query import NoMatches
 from textual.containers import Horizontal, Vertical
+from textual.css.query import NoMatches
 from textual.widgets import Footer, Header, Static
 
-from ..analyzer import Analyzer, AnalysisResult
+from ..analyzer import AnalysisResult, Analyzer
 from ..config import Config
-
 
 CSS = """
 Screen {
@@ -80,7 +79,7 @@ class DupeCleanApp(App):
         super().__init__()
         self.target = target
         self.config = config or Config()
-        self.result: Optional[AnalysisResult] = None
+        self.result: AnalysisResult | None = None
         self._scanning = False
 
     def compose(self) -> ComposeResult:
@@ -114,14 +113,14 @@ class DupeCleanApp(App):
         if not self.result:
             return
         from .screens.main import MainScreen
-        try:
+
+        with contextlib.suppress(NoMatches):
             self.pop_screen()
-        except NoMatches:
-            pass
         self.push_screen(MainScreen(self.result, self.config))
 
     def action_help(self) -> None:
         from .screens.help import HelpScreen
+
         self.push_screen(HelpScreen())
 
     def action_quit(self) -> None:

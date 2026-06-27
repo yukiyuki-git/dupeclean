@@ -1,8 +1,8 @@
 """Tests for DupeClean analyzer."""
-from pathlib import Path
+
 import pytest
-from dupeclean.analyzer import Analyzer, AnalysisResult
-from dupeclean.config import Config
+
+from dupeclean.analyzer import AnalysisResult, Analyzer
 
 
 @pytest.fixture

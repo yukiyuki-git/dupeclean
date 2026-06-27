@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Optional
 
 from .config import Config
 from .dedup import DuplicateFinder, update_scan_stats
@@ -12,7 +12,14 @@ from .scanner import Scanner
 
 
 class AnalysisResult:
-    def __init__(self, root: Path, files: list[FileInfo], dirs: dict[Path, DirInfo], stats: ScanStats, duplicates: list[DuplicateGroup]) -> None:
+    def __init__(
+        self,
+        root: Path,
+        files: list[FileInfo],
+        dirs: dict[Path, DirInfo],
+        stats: ScanStats,
+        duplicates: list[DuplicateGroup],
+    ) -> None:
         self.root = root
         self.files = files
         self.dirs = dirs
@@ -39,7 +46,9 @@ class AnalysisResult:
             return []
         children: list[DirInfo | FileInfo] = list(dir_info.children)
         children.extend(dir_info.files)
-        children.sort(key=lambda x: x.total_size if isinstance(x, DirInfo) else x.size, reverse=True)
+        children.sort(
+            key=lambda x: x.total_size if isinstance(x, DirInfo) else x.size, reverse=True
+        )
         return children
 
     def summary_text(self) -> str:
@@ -51,19 +60,30 @@ class AnalysisResult:
             f"Scan time: {format_duration(self.stats.scan_duration)}",
         ]
         if self.duplicates:
-            lines.extend([
-                "",
-                f"Duplicate groups: {self.stats.duplicate_groups:,}",
-                f"Duplicate files: {self.stats.duplicate_files:,}",
-                f"Wasted space: {format_size(self.stats.wasted_space)} ({self.stats.dupe_percentage:.1f}%)",
-            ])
+            lines.extend(
+                [
+                    "",
+                    f"Duplicate groups: {self.stats.duplicate_groups:,}",
+                    f"Duplicate files: {self.stats.duplicate_files:,}",
+                    f"Wasted space: {format_size(self.stats.wasted_space)}"
+                    f" ({self.stats.dupe_percentage:.1f}%)",
+                ]
+            )
         if self.stats.largest_file:
-            lines.extend(["", f"Largest file: {self.stats.largest_file.path}", f"  Size: {self.stats.largest_file.size_display}"])
+            lines.extend(
+                [
+                    "",
+                    f"Largest file: {self.stats.largest_file.path}",
+                    f"  Size: {self.stats.largest_file.size_display}",
+                ]
+            )
         top_ext = self.top_extensions[:5]
         if top_ext:
             lines.extend(["", "Top file types:"])
             for ext, count, size in top_ext:
-                lines.append(f"  .{ext or '(none)':10s} {count:>8,} files  {format_size(size):>10s}")
+                lines.append(
+                    f"  .{ext or '(none)':10s} {count:>8,} files  {format_size(size):>10s}"
+                )
         return "\n".join(lines)
 
 
@@ -71,7 +91,7 @@ class Analyzer:
     def __init__(self, config: Config | None = None) -> None:
         self.config = config or Config()
         self._cancelled = False
-        self._on_progress: Optional[Callable[[str, int, int], None]] = None
+        self._on_progress: Callable[[str, int, int], None] | None = None
 
     def cancel(self) -> None:
         self._cancelled = True

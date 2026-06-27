@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import shutil
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Optional
 
 from .models import CleanupAction, CleanupResult, DuplicateGroup, FileInfo
 from .utils import create_hardlink, safe_remove
@@ -14,7 +14,7 @@ class CleanupManager:
     def __init__(self, dry_run: bool = False) -> None:
         self.dry_run = dry_run
         self._cancelled = False
-        self._on_progress: Optional[Callable[[str, int, int], None]] = None
+        self._on_progress: Callable[[str, int, int], None] | None = None
 
     def cancel(self) -> None:
         self._cancelled = True
@@ -22,7 +22,9 @@ class CleanupManager:
     def on_progress(self, callback: Callable[[str, int, int], None]) -> None:
         self._on_progress = callback
 
-    def execute_cleanup(self, groups: list[DuplicateGroup], action: CleanupAction, move_dest: Optional[Path] = None) -> CleanupResult:
+    def execute_cleanup(
+        self, groups: list[DuplicateGroup], action: CleanupAction, move_dest: Path | None = None
+    ) -> CleanupResult:
         result = CleanupResult(action=action)
         self._cancelled = False
         total = sum(g.count - 1 for g in groups)
@@ -64,8 +66,15 @@ class CleanupManager:
             return min(range(group.count), key=lambda i: len(str(group.files[i].path)))
         return 0
 
-    def _apply_action(self, fi: FileInfo, action: CleanupAction, keeper: FileInfo, move_dest: Optional[Path]) -> tuple[bool, str]:
-        if action in (CleanupAction.DELETE, CleanupAction.KEEP_NEWEST, CleanupAction.KEEP_OLDEST, CleanupAction.KEEP_SHORTEST_PATH):
+    def _apply_action(
+        self, fi: FileInfo, action: CleanupAction, keeper: FileInfo, move_dest: Path | None
+    ) -> tuple[bool, str]:
+        if action in (
+            CleanupAction.DELETE,
+            CleanupAction.KEEP_NEWEST,
+            CleanupAction.KEEP_OLDEST,
+            CleanupAction.KEEP_SHORTEST_PATH,
+        ):
             return safe_remove(fi.path)
         if action == CleanupAction.RECYCLE:
             return self._recycle(fi.path)
@@ -78,6 +87,7 @@ class CleanupManager:
     def _recycle(self, path: Path) -> tuple[bool, str]:
         try:
             from send2trash import send2trash
+
             send2trash(str(path))
             return True, ""
         except ImportError:
@@ -96,7 +106,7 @@ class CleanupManager:
         except Exception as e:
             return False, f"Failed to recycle: {e}"
 
-    def _move(self, path: Path, dest: Optional[Path]) -> tuple[bool, str]:
+    def _move(self, path: Path, dest: Path | None) -> tuple[bool, str]:
         if dest is None:
             return False, "No destination specified for move"
         try:

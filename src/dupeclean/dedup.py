@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import time
 from collections import defaultdict
-from typing import Callable, Optional
+from collections.abc import Callable
 
 from .config import Config
 from .hasher import Hasher
@@ -16,7 +16,7 @@ class DuplicateFinder:
         self.config = config or Config()
         self.hasher = Hasher(self.config.hasher)
         self._cancelled = False
-        self._on_progress: Optional[Callable[[str, int, int], None]] = None
+        self._on_progress: Callable[[str, int, int], None] | None = None
 
     def cancel(self) -> None:
         self._cancelled = True
@@ -27,7 +27,7 @@ class DuplicateFinder:
 
     def find_duplicates(self, files: list[FileInfo]) -> list[DuplicateGroup]:
         self._cancelled = False
-        start = time.monotonic()
+        time.monotonic()
 
         if self._on_progress:
             self._on_progress("Grouping by size...", 0, 0)
@@ -40,7 +40,9 @@ class DuplicateFinder:
             return []
 
         if self._on_progress:
-            self._on_progress(f"Found {len(candidates)} files with same-size siblings", 0, len(candidates))
+            self._on_progress(
+                f"Found {len(candidates)} files with same-size siblings", 0, len(candidates)
+            )
 
         # Stage 2: Quick hash
         if self._cancelled:
@@ -73,7 +75,12 @@ class DuplicateFinder:
         for hash_val, group_files in full_groups.items():
             if len(group_files) < 2:
                 continue
-            group = DuplicateGroup(group_id=group_id, hash_value=hash_val, file_size=group_files[0].size, files=group_files)
+            group = DuplicateGroup(
+                group_id=group_id,
+                hash_value=hash_val,
+                file_size=group_files[0].size,
+                files=group_files,
+            )
             for fi in group_files:
                 fi.duplicate_group = group_id
             groups.append(group)
@@ -110,7 +117,9 @@ class DuplicateFinder:
         return candidates
 
 
-def quick_find_duplicates(files: list[FileInfo], config: Config | None = None) -> list[DuplicateGroup]:
+def quick_find_duplicates(
+    files: list[FileInfo], config: Config | None = None
+) -> list[DuplicateGroup]:
     finder = DuplicateFinder(config)
     return finder.find_duplicates(files)
 

@@ -1,4 +1,5 @@
 """conftest.py — shared fixtures for DupeClean tests."""
+
 import sys
 from pathlib import Path
 

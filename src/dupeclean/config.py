@@ -6,7 +6,6 @@ import os
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 CONFIG_FILE_NAME = "config.toml"
 APP_DIR_NAME = "dupeclean"
@@ -17,11 +16,22 @@ class ScannerConfig:
     follow_symlinks: bool = False
     skip_hidden: bool = False
     threads: int = 4
-    ignore_patterns: list[str] = field(default_factory=lambda: [
-        ".git", "node_modules", "__pycache__", ".venv", "venv",
-        ".mypy_cache", ".pytest_cache", ".ruff_cache", ".tox",
-        "dist", "build", ".eggs",
-    ])
+    ignore_patterns: list[str] = field(
+        default_factory=lambda: [
+            ".git",
+            "node_modules",
+            "__pycache__",
+            ".venv",
+            "venv",
+            ".mypy_cache",
+            ".pytest_cache",
+            ".ruff_cache",
+            ".tox",
+            "dist",
+            "build",
+            ".eggs",
+        ]
+    )
 
 
 @dataclass
@@ -45,7 +55,7 @@ class Config:
     display: DisplayConfig = field(default_factory=DisplayConfig)
 
     @classmethod
-    def load(cls, path: Optional[Path] = None) -> Config:
+    def load(cls, path: Path | None = None) -> Config:
         if path is None:
             path = get_config_path()
         if path and path.exists():
@@ -84,7 +94,7 @@ class Config:
                     setattr(config.display, key, d[key])
         return config
 
-    def save(self, path: Optional[Path] = None) -> None:
+    def save(self, path: Path | None = None) -> None:
         if path is None:
             path = get_config_path()
         if path is None:
@@ -110,7 +120,7 @@ class Config:
         path.write_text("\n".join(lines) + "\n")
 
 
-def get_config_path() -> Optional[Path]:
+def get_config_path() -> Path | None:
     if sys.platform == "win32":
         app_data = os.environ.get("APPDATA")
         if app_data:

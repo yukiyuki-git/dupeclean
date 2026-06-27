@@ -3,15 +3,15 @@
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Callable, Optional
 
 from .config import HasherConfig
 from .models import FileInfo, HashStage
 
 
-def _hash_file_chunk(path: Path, size: int, algorithm: str) -> Optional[str]:
+def _hash_file_chunk(path: Path, size: int, algorithm: str) -> str | None:
     try:
         h = _create_hasher(algorithm)
         bytes_read = 0
@@ -28,7 +28,7 @@ def _hash_file_chunk(path: Path, size: int, algorithm: str) -> Optional[str]:
         return None
 
 
-def _hash_file_full(path: Path, algorithm: str) -> Optional[str]:
+def _hash_file_full(path: Path, algorithm: str) -> str | None:
     try:
         h = _create_hasher(algorithm)
         with open(path, "rb") as f:
@@ -46,6 +46,7 @@ def _create_hasher(algorithm: str):
     if algorithm == "xxhash":
         try:
             import xxhash
+
             return xxhash.xxh3_128()
         except ImportError:
             pass
@@ -58,7 +59,7 @@ class Hasher:
     def __init__(self, config: HasherConfig | None = None) -> None:
         self.config = config or HasherConfig()
         self._cancelled = False
-        self._on_progress: Optional[Callable[[str, int, int], None]] = None
+        self._on_progress: Callable[[str, int, int], None] | None = None
 
     def cancel(self) -> None:
         self._cancelled = True
@@ -66,7 +67,9 @@ class Hasher:
     def on_progress(self, callback: Callable[[str, int, int], None]) -> None:
         self._on_progress = callback
 
-    def hash_files(self, files: list[FileInfo], stage: HashStage = HashStage.QUICK, threads: int = 4) -> list[FileInfo]:
+    def hash_files(
+        self, files: list[FileInfo], stage: HashStage = HashStage.QUICK, threads: int = 4
+    ) -> list[FileInfo]:
         self._cancelled = False
         total = len(files)
         completed = 0
@@ -94,7 +97,7 @@ class Hasher:
                 if self._cancelled:
                     break
                 try:
-                    file_id, hash_val = future.result()
+                    _file_id, hash_val = future.result()
                     fi = futures[future]
                     if hash_val:
                         if stage == HashStage.QUICK:
@@ -107,6 +110,8 @@ class Hasher:
                     pass
                 completed += 1
                 if completed % 100 == 0 and self._on_progress:
-                    self._on_progress(f"Hashing ({stage.value}): {completed}/{total}", completed, total)
+                    self._on_progress(
+                        f"Hashing ({stage.value}): {completed}/{total}", completed, total
+                    )
 
         return files

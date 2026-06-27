@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import os
 import time
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Optional
 
 from .config import ScannerConfig
 from .models import DirInfo, FileInfo, ScanStats
@@ -19,7 +19,7 @@ class Scanner:
         self._stats = ScanStats()
         self._files: list[FileInfo] = []
         self._dirs: dict[Path, DirInfo] = {}
-        self._on_progress: Optional[Callable[[str, int], None]] = None
+        self._on_progress: Callable[[str, int], None] | None = None
 
     def cancel(self) -> None:
         self._cancelled = True
@@ -56,7 +56,7 @@ class Scanner:
         self._stats.scan_duration = time.monotonic() - start
         return self._files, self._dirs, self._stats
 
-    def _walk(self, directory: Path, depth: int, parent: Optional[DirInfo]) -> None:
+    def _walk(self, directory: Path, depth: int, parent: DirInfo | None) -> None:
         if self._cancelled:
             return
 
@@ -80,10 +80,9 @@ class Scanner:
                     continue
                 if self.config.skip_hidden and is_hidden(path):
                     continue
-                if entry.is_symlink():
-                    if not self.config.follow_symlinks:
-                        self._stats.total_files += 1
-                        continue
+                if entry.is_symlink() and not self.config.follow_symlinks:
+                    self._stats.total_files += 1
+                    continue
                 if entry.is_dir(follow_symlinks=self.config.follow_symlinks):
                     self._stats.total_dirs += 1
                     subdirs.append(path)
@@ -96,7 +95,10 @@ class Scanner:
                         dir_info.file_count += 1
                         self._stats.total_files += 1
                         self._stats.total_size += fi.size
-                        if self._stats.largest_file is None or fi.size > self._stats.largest_file.size:
+                        if (
+                            self._stats.largest_file is None
+                            or fi.size > self._stats.largest_file.size
+                        ):
                             self._stats.largest_file = fi
                         ext = fi.extension or "(no ext)"
                         if ext not in self._stats.extensions:
@@ -104,7 +106,10 @@ class Scanner:
                         count, size = self._stats.extensions[ext]
                         self._stats.extensions[ext] = (count + 1, size + fi.size)
                         if self._stats.total_files % 1000 == 0:
-                            self._report_progress(f"Scanned {self._stats.total_files:,} files...", self._stats.total_files)
+                            self._report_progress(
+                                f"Scanned {self._stats.total_files:,} files...",
+                                self._stats.total_files,
+                            )
             except (PermissionError, OSError):
                 continue
 

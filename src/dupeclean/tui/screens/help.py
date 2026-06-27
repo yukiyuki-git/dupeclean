@@ -7,7 +7,6 @@ from textual.containers import VerticalScroll
 from textual.screen import Screen
 from textual.widgets import Static
 
-
 HELP_TEXT = """
 [bold cyan]🔍 DupeClean[/] — Smart Disk Analyzer & Duplicate Finder
 

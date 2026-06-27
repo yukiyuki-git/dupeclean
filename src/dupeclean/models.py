@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Optional
 
 
 class SortKey(Enum):
@@ -36,25 +34,26 @@ class CleanupAction(Enum):
 @dataclass
 class FileInfo:
     """Information about a single file."""
+
     path: Path
     size: int
     mtime: float
     is_symlink: bool = False
     is_dir: bool = False
-    inode: Optional[int] = None
-    quick_hash: Optional[str] = None
-    medium_hash: Optional[str] = None
-    full_hash: Optional[str] = None
+    inode: int | None = None
+    quick_hash: str | None = None
+    medium_hash: str | None = None
+    full_hash: str | None = None
     ext: str = ""
-    duplicate_group: Optional[int] = None
-    marked_for_action: Optional[CleanupAction] = None
+    duplicate_group: int | None = None
+    marked_for_action: CleanupAction | None = None
 
     def __post_init__(self) -> None:
         if not self.ext and not self.is_dir:
             self.ext = self.path.suffix.lower()
 
     @classmethod
-    def from_path(cls, path: Path, follow_symlinks: bool = False) -> Optional[FileInfo]:
+    def from_path(cls, path: Path, follow_symlinks: bool = False) -> FileInfo | None:
         try:
             st = path.lstat() if not follow_symlinks else path.stat()
         except (OSError, PermissionError):
@@ -77,20 +76,21 @@ class FileInfo:
         return self.ext.lstrip(".")
 
     @property
-    def hash_for_dedup(self) -> Optional[str]:
+    def hash_for_dedup(self) -> str | None:
         return self.full_hash or self.medium_hash or self.quick_hash
 
 
 @dataclass
 class DirInfo:
     """Aggregated information about a directory."""
+
     path: Path
     total_size: int = 0
     file_count: int = 0
     dir_count: int = 0
     children: list[DirInfo] = field(default_factory=list)
     files: list[FileInfo] = field(default_factory=list)
-    parent: Optional[DirInfo] = None
+    parent: DirInfo | None = None
     depth: int = 0
 
     @property
@@ -105,6 +105,7 @@ class DirInfo:
 @dataclass
 class DuplicateGroup:
     """A group of files with identical content."""
+
     group_id: int
     hash_value: str
     file_size: int
@@ -130,6 +131,7 @@ class DuplicateGroup:
 @dataclass
 class ScanStats:
     """Statistics from a scan operation."""
+
     total_files: int = 0
     total_dirs: int = 0
     total_size: int = 0
@@ -138,7 +140,7 @@ class ScanStats:
     wasted_space: int = 0
     scan_duration: float = 0.0
     hash_duration: float = 0.0
-    largest_file: Optional[FileInfo] = None
+    largest_file: FileInfo | None = None
     extensions: dict[str, tuple[int, int]] = field(default_factory=dict)
 
     @property
@@ -155,6 +157,7 @@ class ScanStats:
 @dataclass
 class CleanupResult:
     """Result of a cleanup operation."""
+
     action: CleanupAction
     files_processed: int = 0
     files_deleted: int = 0
@@ -174,9 +177,7 @@ def format_size(size: int, binary: bool = True) -> str:
     if size == 0:
         return "0 B"
     units = (
-        ["B", "KiB", "MiB", "GiB", "TiB", "PiB"]
-        if binary
-        else ["B", "KB", "MB", "GB", "TB", "PB"]
+        ["B", "KiB", "MiB", "GiB", "TiB", "PiB"] if binary else ["B", "KB", "MB", "GB", "TB", "PB"]
     )
     base = 1024 if binary else 1000
     for unit in units:

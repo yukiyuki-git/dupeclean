@@ -1,6 +1,7 @@
 """Tests for DupeClean hasher."""
-from pathlib import Path
+
 import pytest
+
 from dupeclean.config import HasherConfig
 from dupeclean.hasher import Hasher
 from dupeclean.models import FileInfo, HashStage
@@ -9,7 +10,12 @@ from dupeclean.models import FileInfo, HashStage
 @pytest.fixture
 def sample_files(tmp_path):
     files = []
-    for name, content in [("a.txt", b"hello world"), ("b.txt", b"hello world"), ("c.txt", b"different"), ("d.txt", b"hello world again longer")]:
+    for name, content in [
+        ("a.txt", b"hello world"),
+        ("b.txt", b"hello world"),
+        ("c.txt", b"different"),
+        ("d.txt", b"hello world again longer"),
+    ]:
         path = tmp_path / name
         path.write_bytes(content)
         fi = FileInfo.from_path(path)

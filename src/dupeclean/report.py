@@ -7,7 +7,6 @@ import io
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 from .analyzer import AnalysisResult
 from .models import format_duration, format_size
@@ -17,7 +16,7 @@ class ReportGenerator:
     def __init__(self, result: AnalysisResult) -> None:
         self.result = result
 
-    def generate(self, format: str, output: Optional[Path] = None) -> Optional[str]:
+    def generate(self, format: str, output: Path | None = None) -> str | None:
         if format == "json":
             content = self._json_report()
         elif format == "csv":
@@ -52,14 +51,23 @@ class ReportGenerator:
                 for ext, count, size in self.result.top_extensions[:20]
             ],
             "largest_files": [
-                {"path": str(f.path), "size": f.size, "size_display": f.size_display, "extension": f.ext}
+                {
+                    "path": str(f.path),
+                    "size": f.size,
+                    "size_display": f.size_display,
+                    "extension": f.ext,
+                }
                 for f in self.result.largest_files[:50]
             ],
             "duplicate_groups": [
                 {
-                    "group_id": g.group_id, "hash": g.hash_value, "file_size": g.file_size,
-                    "file_size_display": g.size_display, "count": g.count,
-                    "wasted_space": g.wasted_space, "wasted_space_display": g.wasted_display,
+                    "group_id": g.group_id,
+                    "hash": g.hash_value,
+                    "file_size": g.file_size,
+                    "file_size_display": g.size_display,
+                    "count": g.count,
+                    "wasted_space": g.wasted_space,
+                    "wasted_space_display": g.wasted_display,
                     "files": [str(f.path) for f in g.files],
                 }
                 for g in self.result.top_duplicates
@@ -73,10 +81,16 @@ class ReportGenerator:
         writer.writerow(["Group ID", "File Path", "Size", "Extension", "Hash", "Modified"])
         for group in self.result.top_duplicates:
             for fi in group.files:
-                writer.writerow([
-                    group.group_id, str(fi.path), fi.size, fi.ext,
-                    group.hash_value, datetime.fromtimestamp(fi.mtime).isoformat(),
-                ])
+                writer.writerow(
+                    [
+                        group.group_id,
+                        str(fi.path),
+                        fi.size,
+                        fi.ext,
+                        group.hash_value,
+                        datetime.fromtimestamp(fi.mtime).isoformat(),
+                    ]
+                )
         return output.getvalue()
 
     def _html_report(self) -> str:
@@ -85,7 +99,7 @@ class ReportGenerator:
         ext_rows = ""
         for ext, count, size in r.top_extensions[:15]:
             pct = (size / s.total_size * 100) if s.total_size > 0 else 0
-            ext_rows += f'<tr><td>.{ext or "(none)"}</td><td>{count:,}</td><td>{format_size(size)}</td><td>{pct:.1f}%</td></tr>'
+            ext_rows += f"<tr><td>.{ext or '(none)'}</td><td>{count:,}</td><td>{format_size(size)}</td><td>{pct:.1f}%</td></tr>"
         largest_rows = ""
         for fi in r.largest_files[:20]:
             largest_rows += f'<tr><td title="{fi.path}">{fi.path.name}</td><td>{fi.size_display}</td><td>{fi.ext or "-"}</td><td class="path">{fi.path.parent}</td></tr>'
@@ -93,7 +107,7 @@ class ReportGenerator:
         for g in r.top_duplicates[:20]:
             files_list = "<br>".join(str(f.path) for f in g.files)
             dup_rows += f'<tr><td>{g.group_id}</td><td>{g.count}</td><td>{g.size_display}</td><td>{g.wasted_display}</td><td class="files">{files_list}</td></tr>'
-        warn = 'warn' if s.wasted_space > 0 else 'good'
+        warn = "warn" if s.wasted_space > 0 else "good"
         return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -127,7 +141,7 @@ h2{{color:var(--fg);margin:1.5rem 0 1rem;font-size:1.3rem}}
 <div class="grid">
 <div class="card"><div class="label">Total Size</div><div class="value">{format_size(s.total_size)}</div></div>
 <div class="card"><div class="label">Files</div><div class="value">{s.total_files:,}</div></div>
-<div class="card"><div class="label">Duplicate Groups</div><div class="value {'warn' if s.duplicate_groups > 0 else 'good'}">{s.duplicate_groups:,}</div></div>
+<div class="card"><div class="label">Duplicate Groups</div><div class="value {"warn" if s.duplicate_groups > 0 else "good"}">{s.duplicate_groups:,}</div></div>
 <div class="card"><div class="label">Wasted Space</div><div class="value {warn}">{format_size(s.wasted_space)}</div></div>
 <div class="card"><div class="label">Scan Time</div><div class="value">{format_duration(s.scan_duration)}</div></div>
 </div>

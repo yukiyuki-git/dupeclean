@@ -1,9 +1,13 @@
 """Tests for DupeClean models."""
+
 from pathlib import Path
-import pytest
+
 from dupeclean.models import (
-    CleanupAction, DuplicateGroup, FileInfo, DirInfo, ScanStats,
-    format_duration, format_size,
+    DuplicateGroup,
+    FileInfo,
+    ScanStats,
+    format_duration,
+    format_size,
 )
 
 
@@ -25,7 +29,7 @@ class TestFormatSize:
         assert format_size(1024 * 1024 * 1024) == "1.0 GiB"
 
     def test_tib(self):
-        assert format_size(1024 ** 4) == "1.0 TiB"
+        assert format_size(1024**4) == "1.0 TiB"
 
     def test_negative(self):
         assert format_size(-1) == "N/A"

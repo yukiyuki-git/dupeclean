@@ -1,6 +1,5 @@
 """Tests for DupeClean config."""
-from pathlib import Path
-import pytest
+
 from dupeclean.config import Config, get_config_path, get_data_path
 
 

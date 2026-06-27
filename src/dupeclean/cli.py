@@ -25,21 +25,33 @@ examples:
   dupeclean --top 20 /path       Show top 20 largest files
         """,
     )
-    parser.add_argument("path", nargs="?", default=".", help="Directory to analyze (default: current directory)")
-    parser.add_argument("-V", "--version", action="version", version=f"{__app_name__} {__version__}")
+    parser.add_argument(
+        "path", nargs="?", default=".", help="Directory to analyze (default: current directory)"
+    )
+    parser.add_argument(
+        "-V", "--version", action="version", version=f"{__app_name__} {__version__}"
+    )
 
     mode = parser.add_argument_group("mode")
     mode.add_argument("--cli", action="store_true", help="Run in CLI mode (no TUI)")
-    mode.add_argument("--duplicates", "-d", action="store_true", help="Find and show duplicate files")
+    mode.add_argument(
+        "--duplicates", "-d", action="store_true", help="Find and show duplicate files"
+    )
     mode.add_argument("--top", "-t", type=int, metavar="N", help="Show top N largest files")
-    mode.add_argument("--report", choices=["json", "csv", "html"], metavar="FORMAT", help="Generate report")
+    mode.add_argument(
+        "--report", choices=["json", "csv", "html"], metavar="FORMAT", help="Generate report"
+    )
 
     options = parser.add_argument_group("options")
     options.add_argument("--output", "-o", type=Path, metavar="FILE", help="Output file for report")
-    options.add_argument("--threads", type=int, default=4, metavar="N", help="Number of threads (default: 4)")
+    options.add_argument(
+        "--threads", type=int, default=4, metavar="N", help="Number of threads (default: 4)"
+    )
     options.add_argument("--follow-symlinks", action="store_true", help="Follow symbolic links")
     options.add_argument("--show-hidden", action="store_true", help="Include hidden files")
-    options.add_argument("--ignore", nargs="+", metavar="PATTERN", help="Additional glob patterns to ignore")
+    options.add_argument(
+        "--ignore", nargs="+", metavar="PATTERN", help="Additional glob patterns to ignore"
+    )
     options.add_argument("--no-dedup", action="store_true", help="Skip duplicate detection")
     options.add_argument("--config", type=Path, metavar="FILE", help="Path to config file")
     return parser
@@ -70,6 +82,7 @@ def main(argv: list[str] | None = None) -> int:
 def _run_tui(target: Path, config: Config) -> int:
     try:
         from .tui.app import DupeCleanApp
+
         app = DupeCleanApp(target, config)
         app.run()
         return 0
@@ -81,13 +94,14 @@ def _run_tui(target: Path, config: Config) -> int:
 def _run_cli(target: Path, args: argparse.Namespace, config: Config) -> int:
     from .analyzer import Analyzer
     from .models import format_size
+
     analyzer = Analyzer(config)
     analyzer.on_progress(lambda msg, done, total: print(f"\r{msg}", end="", flush=True))
     result = analyzer.analyze(target, find_dupes=not args.no_dedup)
     print()
     if args.top:
         print(f"\nTop {args.top} largest files in {target}:\n")
-        for i, fi in enumerate(result.largest_files[:args.top], 1):
+        for i, fi in enumerate(result.largest_files[: args.top], 1):
             print(f"  {i:>4}. {fi.size_display:>10s}  {fi.path}")
         print()
         return 0
@@ -96,9 +110,16 @@ def _run_cli(target: Path, args: argparse.Namespace, config: Config) -> int:
         if not groups:
             print("No duplicate files found.")
             return 0
-        print(f"\nFound {len(groups)} duplicate groups ({result.stats.duplicate_files} files, {format_size(result.stats.wasted_space)} wasted):\n")
+        print(
+            f"\nFound {len(groups)} duplicate groups "
+            f"({result.stats.duplicate_files} files, "
+            f"{format_size(result.stats.wasted_space)} wasted):\n"
+        )
         for g in groups[:50]:
-            print(f"  Group #{g.group_id}: {g.count} files × {g.size_display} (wasted: {g.wasted_display})")
+            print(
+                f"  Group #{g.group_id}: {g.count} files x "
+                f"{g.size_display} (wasted: {g.wasted_display})"
+            )
             for fi in g.files:
                 print(f"    {fi.path}")
         if len(groups) > 50:
@@ -109,9 +130,12 @@ def _run_cli(target: Path, args: argparse.Namespace, config: Config) -> int:
     return 0
 
 
-def _run_report(target: Path, format: str, output: Path | None, no_dedup: bool, config: Config) -> int:
+def _run_report(
+    target: Path, format: str, output: Path | None, no_dedup: bool, config: Config
+) -> int:
     from .analyzer import Analyzer
     from .report import ReportGenerator
+
     analyzer = Analyzer(config)
     result = analyzer.analyze(target, find_dupes=not no_dedup)
     gen = ReportGenerator(result)
@@ -125,6 +149,7 @@ def _run_report(target: Path, format: str, output: Path | None, no_dedup: bool, 
 
 def _run_cli_fallback(target: Path, config: Config) -> int:
     from .analyzer import Analyzer
+
     print(f"Analyzing {target}...\n")
     analyzer = Analyzer(config)
     result = analyzer.analyze(target)
