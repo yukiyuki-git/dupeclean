@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 @dataclass
 class ResultHandler:
     """Handle cleanup results."""
+
     results: list[dict] = field(default_factory=list)
     on_success: list[Callable] = field(default_factory=list)
     on_failure: list[Callable] = field(default_factory=list)
@@ -48,11 +49,6 @@ class ResultHandler:
         return sum(1 for r in self.results if not r.get("success"))
 
 
-
 def format_handler_summary(handler: ResultHandler) -> str:
     """Format handler summary as text."""
-    return (
-        f"Results: {handler.total} total, "
-        f"{handler.successes} success, "
-        f"{handler.failures} failed"
-    )
+    return f"Results: {handler.total} total, {handler.successes} success, {handler.failures} failed"
